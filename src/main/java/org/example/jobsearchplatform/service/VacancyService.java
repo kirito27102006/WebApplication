@@ -48,9 +48,9 @@ public class VacancyService {
     }
 
     // Удаление машины
-    public void deleteVacancy(Long id) {
+    public void deleteVacancy(Long id) throws NoSuchFieldException {
         if (!vacancyRepository.findById(id).isPresent()) {
-            throw new RuntimeException("Vacancy not found with id: " + id);
+            throw new NoSuchFieldException("Vacancy not found with id: " + id);
         }
         vacancyRepository.deleteById(id);
     }

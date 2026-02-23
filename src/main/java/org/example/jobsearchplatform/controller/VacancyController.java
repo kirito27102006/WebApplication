@@ -43,7 +43,7 @@ public class VacancyController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)  // Возвращаем статус 204 No Content
-    public void deleteVacancy(@PathVariable Long id) {
+    public void deleteVacancy(@PathVariable Long id) throws NoSuchFieldException {
         vacancyService.deleteVacancy(id);
     }
 }
