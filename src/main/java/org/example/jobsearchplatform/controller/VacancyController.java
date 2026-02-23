@@ -27,7 +27,7 @@ public class VacancyController {
     @GetMapping
     public List<VacancyResponse> getAllVacancies(
             @RequestParam(required = false) String status) {
-        return vacancyService.findAll(status);
+        return vacancyService.findAll();
     }
 
     @GetMapping("/{id}")

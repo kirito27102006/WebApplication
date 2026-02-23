@@ -38,7 +38,7 @@ public class VacancyService {
     }
 
     // Получение всех машин (с возможностью фильтрации по статусу)
-    public List<VacancyResponse> findAll(String status) {
+    public List<VacancyResponse> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
 
         // Если указан статус - фильт
