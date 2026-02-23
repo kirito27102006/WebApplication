@@ -9,7 +9,6 @@ import org.example.jobsearchplatform.service.mapper.VacancyMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service  // Говорит Spring, что это сервис (бизнес-логика)
 @RequiredArgsConstructor
@@ -45,7 +44,7 @@ public class VacancyService {
         // Преобразуем все машины в DTO
         return vacancies.stream()
                 .map(vacancyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Удаление машины
