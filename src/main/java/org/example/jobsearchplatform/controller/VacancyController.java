@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController  // Объединяет @Controller и @ResponseBody
-@RequestMapping("/api/vacancies")  // Базовый URL для всех методов в этом контроллере
+@RestController
+@RequestMapping("/api/vacancies")
 @RequiredArgsConstructor
 public class VacancyController {
 
@@ -36,13 +36,13 @@ public class VacancyController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)  // Возвращаем статус 201 Created
+    @ResponseStatus(HttpStatus.CREATED)
     public VacancyResponse createVacancy(@RequestBody VacancyCreateRequest request) {
         return vacancyService.createVacancy(request);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)  // Возвращаем статус 204 No Content
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVacancy(@PathVariable Long id) throws NoSuchFieldException {
         vacancyService.deleteVacancy(id);
     }
