@@ -25,7 +25,7 @@ public class VacancyController {
     private final VacancyService vacancyService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<VacancyResponse> getVacancyById(@PathVariable Long id) {
+    public ResponseEntity<VacancyResponse> getVacancyById(@PathVariable Long id) throws NoSuchFieldException {
         try {
             VacancyResponse response = vacancyService.findById(id);
             return ResponseEntity.ok(response);

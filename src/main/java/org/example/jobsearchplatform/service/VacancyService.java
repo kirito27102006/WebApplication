@@ -24,10 +24,10 @@ public class VacancyService {
         return vacancyMapper.toResponse(savedVacancy);
     }
 
-    public VacancyResponse findById(Long id) {
+    public VacancyResponse findById(Long id) throws NoSuchFieldException {
         Optional<Vacancy> optionalVacancy = vacancyRepository.findById(id);
         if (optionalVacancy.isEmpty()) {
-            throw new RuntimeException("Vacancy not found with id: " + id);
+            throw new NoSuchFieldException("Vacancy not found with id: " + id);
         }
         return vacancyMapper.toResponse(optionalVacancy.get());
     }
