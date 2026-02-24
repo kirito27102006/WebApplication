@@ -35,6 +35,13 @@ public class InMemoryVacancyRepository implements VacancyRepository {
     }
 
     @Override
+    public List<Vacancy> findByJobContainingIgnoreCase(String job) {
+        return storage.values().stream()
+                .filter(v -> v.getJob().toLowerCase().contains(job.toLowerCase()))
+                .toList();
+    }
+
+    @Override
     public List<Vacancy> findAll() {
         return new ArrayList<>(storage.values());
     }

@@ -28,6 +28,13 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancy);
     }
 
+    public List<VacancyResponse> findByJob(String job) {
+        List<Vacancy> vacancies = vacancyRepository.findByJobContainingIgnoreCase(job);
+        return vacancies.stream()
+                .map(vacancyMapper::toResponse)
+                .toList();
+    }
+
     public List<VacancyResponse> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
         return vacancies.stream()

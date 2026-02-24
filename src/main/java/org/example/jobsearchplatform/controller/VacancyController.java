@@ -24,12 +24,6 @@ public class VacancyController {
 
     private final VacancyService vacancyService;
 
-    @GetMapping
-    public List<VacancyResponse> getAllVacancies(
-            @RequestParam(required = false) String status) {
-        return vacancyService.findAll();
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<VacancyResponse> getVacancyById(@PathVariable Long id) {
         try {
@@ -38,6 +32,19 @@ public class VacancyController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<VacancyResponse>> getAllVacancies(
+            @RequestParam(required = false) String job) {
+        if (job != null && !job.isBlank()) {
+            List<VacancyResponse> vacancies = vacancyService.findByJob(job);
+            if (vacancies.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(vacancies);
+        }
+        return ResponseEntity.ok(vacancyService.findAll());
     }
 
     @PostMapping

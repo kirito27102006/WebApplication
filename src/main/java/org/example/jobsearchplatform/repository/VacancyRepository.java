@@ -10,5 +10,7 @@ public interface VacancyRepository {
 
     Optional<Vacancy> findById(Long id);
 
+    List<Vacancy> findByJobContainingIgnoreCase(String job);
+
     List<Vacancy> findAll();
 }
