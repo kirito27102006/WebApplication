@@ -34,11 +34,4 @@ public class VacancyService {
                 .map(vacancyMapper::toResponse)
                 .toList();
     }
-    
-    public void deleteVacancy(Long id) throws NoSuchFieldException {
-        if (!vacancyRepository.findById(id).isPresent()) {
-            throw new NoSuchFieldException("Vacancy not found with id: " + id);
-        }
-        vacancyRepository.deleteById(id);
-    }
 }

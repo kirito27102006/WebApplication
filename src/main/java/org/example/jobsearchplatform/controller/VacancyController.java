@@ -5,6 +5,7 @@ import org.example.jobsearchplatform.dto.VacancyCreateRequest;
 import org.example.jobsearchplatform.dto.VacancyResponse;
 import org.example.jobsearchplatform.service.VacancyService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,19 +32,18 @@ public class VacancyController {
     }
 
     @GetMapping("/{id}")
-    public VacancyResponse getVacancyById(@PathVariable Long id) {
-        return vacancyService.findById(id);
+    public ResponseEntity<VacancyResponse> getVacancyById(@PathVariable Long id) {
+        try {
+            VacancyResponse response = vacancyService.findById(id);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public VacancyResponse createVacancy(@RequestBody VacancyCreateRequest request) {
         return vacancyService.createVacancy(request);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteVacancy(@PathVariable Long id) throws NoSuchFieldException {
-        vacancyService.deleteVacancy(id);
     }
 }

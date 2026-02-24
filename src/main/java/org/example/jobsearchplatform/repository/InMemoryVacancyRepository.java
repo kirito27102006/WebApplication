@@ -39,8 +39,4 @@ public class InMemoryVacancyRepository implements VacancyRepository {
         return new ArrayList<>(storage.values());
     }
 
-    @Override
-    public void deleteById(Long id) {
-        storage.remove(id);
-    }
 }

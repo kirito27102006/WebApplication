@@ -11,6 +11,4 @@ public interface VacancyRepository {
     Optional<Vacancy> findById(Long id);
 
     List<Vacancy> findAll();
-
-    void deleteById(Long id);
 }
