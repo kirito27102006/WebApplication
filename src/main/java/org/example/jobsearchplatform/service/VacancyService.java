@@ -8,7 +8,9 @@ import org.example.jobsearchplatform.repository.VacancyRepository;
 import org.example.jobsearchplatform.service.mapper.VacancyMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,22 +25,28 @@ public class VacancyService {
     }
 
     public VacancyResponse findById(Long id) {
-        Vacancy vacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vacancy not found with id: " + id));
-        return vacancyMapper.toResponse(vacancy);
+        Optional<Vacancy> optionalVacancy = vacancyRepository.findById(id);
+        if (optionalVacancy.isEmpty()) {
+            throw new RuntimeException("Vacancy not found with id: " + id);
+        }
+        return vacancyMapper.toResponse(optionalVacancy.get());
     }
 
     public List<VacancyResponse> findByJob(String job) {
         List<Vacancy> vacancies = vacancyRepository.findByJobContainingIgnoreCase(job);
-        return vacancies.stream()
-                .map(vacancyMapper::toResponse)
-                .toList();
+        List<VacancyResponse> responses = new ArrayList<>();
+        for (Vacancy vacancy : vacancies) {
+            responses.add(vacancyMapper.toResponse(vacancy));
+        }
+        return responses;
     }
 
     public List<VacancyResponse> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
-        return vacancies.stream()
-                .map(vacancyMapper::toResponse)
-                .toList();
+        List<VacancyResponse> responses = new ArrayList<>();
+        for (Vacancy vacancy : vacancies) {
+            responses.add(vacancyMapper.toResponse(vacancy));
+        }
+        return responses;
     }
 }
