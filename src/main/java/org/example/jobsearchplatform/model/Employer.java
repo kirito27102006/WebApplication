@@ -8,52 +8,49 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "vacancies")
+@Table(name = "employers")
 @Data
-public class Vacancy {
+public class Employer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String title;
+    @Column(name = "first_name", nullable = false, length = 50)
+    private String firstName;
 
-    @Column(length = 2000)
-    private String description;
+    @Column(name = "last_name", nullable = false, length = 50)
+    private String lastName;
 
-    @Column(nullable = false)
-    private Integer salary;
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
 
-    @Column(name = "required_experience")
-    private Integer requiredExperience;
-
-    @Column(length = 100)
-    private String location;
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
 
     @Column(nullable = false, length = 20)
-    private String status;  // ACTIVE, CLOSED, DRAFT
+    private String status;  // ACTIVE, BLOCKED, DELETED
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_id")
-    private Employer createdBy;
+    @OneToMany(mappedBy = "createdBy")
+    @ToString.Exclude
+    private List<Vacancy> createdVacancies = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -61,10 +58,5 @@ public class Vacancy {
         if (status == null) {
             status = "ACTIVE";
         }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

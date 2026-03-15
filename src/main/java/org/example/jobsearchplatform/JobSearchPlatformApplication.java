@@ -8,5 +8,4 @@ public class JobSearchPlatformApplication {
     public static void main(String[] args) {
         SpringApplication.run(JobSearchPlatformApplication.class, args);
     }
-
 }

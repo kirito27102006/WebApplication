@@ -15,9 +15,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "vacancies")
+@Table(name = "resumes")
 @Data
-public class Vacancy {
+public class Resume {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,19 +27,22 @@ public class Vacancy {
     private String title;
 
     @Column(length = 2000)
-    private String description;
+    private String skills;
 
-    @Column(nullable = false)
-    private Integer salary;
+    @Column(length = 2000)
+    private String experience;
 
-    @Column(name = "required_experience")
-    private Integer requiredExperience;
+    @Column(length = 2000)
+    private String education;
 
-    @Column(length = 100)
+    @Column(name = "expected_salary")
+    private Integer expectedSalary;
+
+    @Column(length = 50)
     private String location;
 
     @Column(nullable = false, length = 20)
-    private String status;  // ACTIVE, CLOSED, DRAFT
+    private String status;  // ACTIVE, HIDDEN, ARCHIVED
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -48,12 +51,8 @@ public class Vacancy {
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
-    private Company company;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_id")
-    private Employer createdBy;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @PrePersist
     protected void onCreate() {

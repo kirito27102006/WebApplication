@@ -4,18 +4,17 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class VacancyResponse {
+public class ResumeResponse {
     private Long id;
     private String title;
-    private String description;
-    private Integer salary;
-    private Integer requiredExperience;
+    private String skills;
+    private String experience;
+    private String education;
+    private Integer expectedSalary;
     private String location;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long companyId;
-    private String companyName;
-    private Long createdById;
-    private String createdByName;
+    private Long userId;
+    private String userFullName;
 }

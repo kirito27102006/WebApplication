@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="job_search_platform" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" activateToolWindowBeforeRun="false">
+    <option name="ALTERNATIVE_JRE_PATH" value="openjdk-25" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <envs>
+      <env name="DB_USERNAME" value="postgres" />
+      <env name="DB_PASSWORD" value="Meliodas2006@" />
+    </envs>
+    <option name="INCLUDE_PROVIDED_SCOPE" value="false" />
+    <module name="JobSearchPlatform" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.example.jobsearchplatform.JobSearchPlatformApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

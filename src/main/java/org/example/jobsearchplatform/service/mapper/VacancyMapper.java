@@ -3,24 +3,48 @@ package org.example.jobsearchplatform.service.mapper;
 import org.example.jobsearchplatform.dto.VacancyCreateRequest;
 import org.example.jobsearchplatform.dto.VacancyResponse;
 import org.example.jobsearchplatform.model.Vacancy;
+import org.example.jobsearchplatform.model.Company;
+import org.example.jobsearchplatform.model.Employer;
 import org.springframework.stereotype.Component;
 
 @Component
 public class VacancyMapper {
-    public Vacancy toEntity(VacancyCreateRequest request) {
+
+    public Vacancy toEntity(VacancyCreateRequest request, Company company, Employer createdBy) {
         Vacancy vacancy = new Vacancy();
-        vacancy.setJob(request.getJob());
+        vacancy.setTitle(request.getTitle());
+        vacancy.setDescription(request.getDescription());
         vacancy.setSalary(request.getSalary());
-        vacancy.setExperience(request.getExperience());
+        vacancy.setRequiredExperience(request.getRequiredExperience());
+        vacancy.setLocation(request.getLocation());
+        vacancy.setCompany(company);
+        vacancy.setCreatedBy(createdBy);
         return vacancy;
     }
 
     public VacancyResponse toResponse(Vacancy vacancy) {
         VacancyResponse response = new VacancyResponse();
         response.setId(vacancy.getId());
-        response.setJob(vacancy.getJob());
+        response.setTitle(vacancy.getTitle());
+        response.setDescription(vacancy.getDescription());
         response.setSalary(vacancy.getSalary());
-        response.setExperience(vacancy.getExperience());
+        response.setRequiredExperience(vacancy.getRequiredExperience());
+        response.setLocation(vacancy.getLocation());
+        response.setStatus(vacancy.getStatus());
+        response.setCreatedAt(vacancy.getCreatedAt());
+        response.setUpdatedAt(vacancy.getUpdatedAt());
+
+        if (vacancy.getCompany() != null) {
+            response.setCompanyId(vacancy.getCompany().getId());
+            response.setCompanyName(vacancy.getCompany().getName());
+        }
+
+        if (vacancy.getCreatedBy() != null) {
+            response.setCreatedById(vacancy.getCreatedBy().getId());
+            response.setCreatedByName(vacancy.getCreatedBy().getFirstName() + " " +
+                    vacancy.getCreatedBy().getLastName());
+        }
+
         return response;
     }
 }
