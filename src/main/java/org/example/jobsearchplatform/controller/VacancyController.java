@@ -30,6 +30,8 @@ public class VacancyController {
 
     private final VacancyService vacancyService;
     private final VacancyRepository vacancyRepository;
+    private static final String BP = "</b></p>";
+    private static final String DIV = "</div>";
 
     @GetMapping("/{id}")
     public ResponseEntity<VacancyResponse> getVacancyById(@PathVariable Long id) {
@@ -67,19 +69,19 @@ public class VacancyController {
 
             Vacancy badVacancy = vacancyRepository.findById(id).orElseThrow();
 
-            log.append("<p>✅ Загружена вакансия: <b>").append(badVacancy.getTitle()).append("</b></p>");
+            log.append("<p>✅ Загружена вакансия: <b>").append(badVacancy.getTitle()).append(BP);
             log.append("<p>🔄 Отдельный запрос к компании: <b>").append(badVacancy.getCompany()
-                    .getName()).append("</b></p>");
+                    .getName()).append(BP);
 
             if (badVacancy.getCreatedBy() != null) {
                 log.append("<p>🔄 Отдельный запрос к создателю: <b>").append(badVacancy
-                        .getCreatedBy().getFirstName()).append("</b></p>");
+                        .getCreatedBy().getFirstName()).append(BP);
             }
 
             // УДАЛЕНО: обращение к getApplications()
 
             log.append("<p style='color: #a94442;'><b>📊 ИТОГО: 1 + N запросов к БД</b></p>");
-            log.append("</div>");
+            log.append(DIV);
 
             // 2. Хороший способ - с fetch join
             log.append("<div style='background-color: #dff0d8; padding: 15px; border-radius: 5px; margin: 10px 0;'>");
@@ -87,27 +89,27 @@ public class VacancyController {
 
             Vacancy goodVacancy = vacancyRepository.findByIdWithJoins(id).orElseThrow();
 
-            log.append("<p>✅ Загружена вакансия: <b>").append(goodVacancy.getTitle()).append("</b></p>");
+            log.append("<p>✅ Загружена вакансия: <b>").append(goodVacancy.getTitle()).append(BP);
             log.append("<p>✅ Компания (уже загружена): <b>").append(goodVacancy.getCompany()
-                    .getName()).append("</b></p>");
+                    .getName()).append(BP);
 
             if (goodVacancy.getCreatedBy() != null) {
                 log.append("<p>✅ Создатель (уже загружен): <b>").append(goodVacancy
-                        .getCreatedBy().getFirstName()).append("</b></p>");
+                        .getCreatedBy().getFirstName()).append(BP);
             }
 
             // УДАЛЕНО: обращение к getApplications()
 
             log.append("<p style='color: #3c763d;'><b>📊 ИТОГО: 1 запрос к БД</b></p>");
-            log.append("</div>");
+            log.append(DIV);
 
             log.append("<p style='font-size: 18px;'><b>👉 Смотри в консоль! Во втором случае будет " +
                     "ОДИН запрос вместо N+1</b></p>");
 
         } catch (Exception e) {
             log.append("<div style='background-color: #f2dede; padding: 15px; border-radius: 5px;'>");
-            log.append("<p style='color: #a94442;'><b>❌ Ошибка: ").append(e.getMessage()).append("</b></p>");
-            log.append("</div>");
+            log.append("<p style='color: #a94442;'><b>❌ Ошибка: ").append(e.getMessage()).append(BP);
+            log.append(DIV);
         }
 
         log.append("</body></html>");

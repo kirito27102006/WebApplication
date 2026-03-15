@@ -30,7 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ResumeRepository resumeRepository;
     private final SkillRepository skillRepository;
     private final SkillService skillService;  // внедряем новый сервис
-    private final String emailTwo = "ivan@example.com";
+    private static final String EMAILTWO = "ivan@example.com";
 
     @Override
     @Transactional
@@ -78,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
             User user1 = new User();
             user1.setFirstName("Иван");
             user1.setLastName("Петров");
-            user1.setEmail(emailTwo);
+            user1.setEmail(EMAILTWO);
             user1.setPhoneNumber("+79001234567");
             userRepository.save(user1);
 
@@ -92,7 +92,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Вызовы методов через сервис (теперь транзакции работают корректно)
         skillService.createSkills();
-        skillService.assignSkillsToUsers(emailTwo);
+        skillService.assignSkillsToUsers(EMAILTWO);
 
         // Создаем вакансии
         if (vacancyRepository.count() == 0) {
@@ -124,7 +124,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем резюме
         if (resumeRepository.count() == 0) {
-            User ivan = userRepository.findByEmail(emailTwo).orElse(null);
+            User ivan = userRepository.findByEmail(EMAILTWO).orElse(null);
             if (ivan != null) {
                 Resume resume = new Resume();
                 resume.setTitle("Java Developer");

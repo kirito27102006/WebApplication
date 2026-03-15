@@ -22,6 +22,8 @@ import java.util.Map;
 public class DemoController {
 
     private final DemoService demoService;
+    private static final String COMPANY = "company";
+    private static final String EMPLOYER = "employer";
 
     @PostMapping("/without-tx")
     public ResponseEntity<DemoResponse> demonstrateWithoutTransaction(@RequestBody DemoRequest request) {
@@ -35,8 +37,8 @@ public class DemoController {
                     .build());
         } catch (Exception e) {
             Map<String, Object> details = new HashMap<>();
-            details.put("company", "✅ СОХРАНИЛАСЬ в базе (проверь таблицу companies)");
-            details.put("employer", "❌ НЕ сохранился (ошибка: " + e.getMessage() + ")");
+            details.put(COMPANY, "✅ СОХРАНИЛАСЬ в базе (проверь таблицу companies)");
+            details.put(EMPLOYER, "❌ НЕ сохранился (ошибка: " + e.getMessage() + ")");
             details.put("error_message", e.getMessage());
             details.put("check_sql", "SELECT * FROM companies WHERE name = '" + request.getCompanyName() + "'");
 
@@ -64,10 +66,11 @@ public class DemoController {
                     .build());
         } catch (Exception e) {
             Map<String, Object> details = new HashMap<>();
-            details.put("company", "❌ НЕ сохранилась (откат транзакции)");
-            details.put("employer", "❌ НЕ сохранился (ошибка: " + e.getMessage() + ")");
+            details.put(COMPANY, "❌ НЕ сохранилась (откат транзакции)");
+            details.put(EMPLOYER, "❌ НЕ сохранился (ошибка: " + e.getMessage() + ")");
             details.put("error_message", e.getMessage());
-            details.put("check_sql", "SELECT * FROM companies WHERE name = '" + request.getCompanyName() + "' (должен быть пустой результат)");
+            details.put("check_sql", "SELECT * FROM companies WHERE name " +
+                    "= '" + request.getCompanyName() + "' (должен быть пустой результат)");
 
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -87,8 +90,8 @@ public class DemoController {
         try {
             demoService.saveSuccessfully(request);
             Map<String, Object> details = new HashMap<>();
-            details.put("company", "✅ Сохранена");
-            details.put("employer", "✅ Сохранен");
+            details.put(COMPANY, "✅ Сохранена");
+            details.put(EMPLOYER, "✅ Сохранен");
             return ResponseEntity.ok(DemoResponse.builder()
                     .success(true)
                     .message("✅ Все данные успешно сохранены!")
