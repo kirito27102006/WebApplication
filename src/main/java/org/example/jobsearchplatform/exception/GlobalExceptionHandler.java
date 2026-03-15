@@ -38,9 +38,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         String message = "Database constraint violation";
-        if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-            org.hibernate.exception.ConstraintViolationException sqlEx =
-                    (org.hibernate.exception.ConstraintViolationException) ex.getCause();
+        if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException sqlEx) {
             if (sqlEx.getSQLState().equals("23505")) {
                 message = "Duplicate key value violates unique constraint";
             } else if (sqlEx.getSQLState().equals("23502")) {

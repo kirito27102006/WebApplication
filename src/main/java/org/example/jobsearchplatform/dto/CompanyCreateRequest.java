@@ -28,6 +28,6 @@ public class CompanyCreateRequest {
     @Email(message = "Invalid email format")
     private String contactEmail;
 
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number")
+    @Pattern(regexp = "^\\+?\\d{10,15}$", message = "Invalid phone number")
     private String contactPhone;
 }
