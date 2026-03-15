@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.CompanyCreateRequest;
 import org.example.jobsearchplatform.dto.CompanyResponse;
@@ -8,8 +9,8 @@ import org.example.jobsearchplatform.repository.CompanyRepository;
 import org.example.jobsearchplatform.service.mapper.CompanyMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class CompanyService {
 
     public CompanyResponse createCompany(CompanyCreateRequest request) {
         if (companyRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Company with name " + request.getName() + " already exists");
+            throw new IllegalArgumentException("Company with name " + request.getName() + " already exists");
         }
 
         Company company = companyMapper.toEntity(request);
@@ -31,37 +32,37 @@ public class CompanyService {
 
     public CompanyResponse findById(Long id) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
         return companyMapper.toResponse(company);
     }
 
     public CompanyResponse findByName(String name) {
         Company company = companyRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Company not found with name: " + name));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with name: " + name));
         return companyMapper.toResponse(company);
     }
 
     public List<CompanyResponse> findAll() {
         return companyRepository.findAll().stream()
                 .map(companyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CompanyResponse> findByIndustry(String industry) {
         return companyRepository.findByIndustry(industry).stream()
                 .map(companyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CompanyResponse> searchByName(String keyword) {
         return companyRepository.searchByName(keyword).stream()
                 .map(companyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public CompanyResponse updateCompany(Long id, CompanyCreateRequest request) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
 
         company.setName(request.getName());
         company.setDescription(request.getDescription());

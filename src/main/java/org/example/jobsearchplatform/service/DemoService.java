@@ -1,6 +1,7 @@
 package org.example.jobsearchplatform.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.DemoRequest;
 import org.example.jobsearchplatform.model.Company;
 import org.example.jobsearchplatform.model.Employer;
@@ -9,12 +10,19 @@ import org.example.jobsearchplatform.repository.EmployerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DemoService {
 
     private final CompanyRepository companyRepository;
     private final EmployerRepository employerRepository;
+
+    // Константы для устранения дублирования литералов
+    private static final String DEFAULT_LOCATION = "Москва";
+    private static final String DEFAULT_WEBSITE = "https://example.com";
+    private static final String DEFAULT_PHONE = "+79001234567";
+    private static final String EMPLOYER_SAVED_MSG = "✅ ШАГ 2: Работодатель сохранен!";
 
     /**
      * Метод БЕЗ @Transactional.
@@ -23,11 +31,11 @@ public class DemoService {
      * Защита от дубликатов компании по имени в начале метода.
      */
     public void saveWithoutTransaction(DemoRequest request) {
-        System.out.println("\n========== МЕТОД БЕЗ @Transactional ==========");
+        log.info("\n========== МЕТОД БЕЗ @Transactional ==========");
 
         // 1. Проверка дубликата компании
         if (companyRepository.existsByName(request.getCompanyName())) {
-            throw new RuntimeException("Company with name '" + request.getCompanyName() + "' already exists.");
+            throw new IllegalArgumentException("Company with name '" + request.getCompanyName() + "' already exists.");
         }
 
         // 2. Сохраняем компанию
@@ -35,12 +43,12 @@ public class DemoService {
         company.setName(request.getCompanyName());
         company.setDescription("Компания из демо-запроса (без транзакции)");
         company.setIndustry("IT");
-        company.setLocation("Москва");
-        company.setWebsite("https://example.com");
+        company.setLocation(DEFAULT_LOCATION);
+        company.setWebsite(DEFAULT_WEBSITE);
         company.setContactEmail("contact@" + request.getCompanyName().toLowerCase().replace(" ", "") + ".com");
 
         Company savedCompany = companyRepository.save(company);
-        System.out.println("✅ ШАГ 1: Компания сохранена! ID: " + savedCompany.getId());
+        log.info("✅ ШАГ 1: Компания сохранена! ID: {}", savedCompany.getId());
 
         // 3. Валидация формата email (после сохранения компании)
         if (!isValidEmail(request.getEmployerEmail())) {
@@ -52,12 +60,12 @@ public class DemoService {
         employer.setFirstName(request.getEmployerFirstName());
         employer.setLastName(request.getEmployerLastName());
         employer.setEmail(request.getEmployerEmail());
-        employer.setPhoneNumber("+79001234567");
+        employer.setPhoneNumber(DEFAULT_PHONE);
         employer.setCompany(savedCompany);
 
-        employerRepository.save(employer); // Здесь может выброситься DataIntegrityViol
-        // ationException (если email уже существует)
-        System.out.println("✅ ШАГ 2: Работодатель сохранен!");
+        employerRepository.save(employer); // Здесь может выброситься DataIntegr
+        // ityViolationException (если email уже существует)
+        log.info(EMPLOYER_SAVED_MSG);
     }
 
     /**
@@ -68,11 +76,11 @@ public class DemoService {
      */
     @Transactional
     public void saveWithTransaction(DemoRequest request) {
-        System.out.println("\n========== МЕТОД С @Transactional ==========");
+        log.info("\n========== МЕТОД С @Transactional ==========");
 
         // 1. Проверка дубликата компании
         if (companyRepository.existsByName(request.getCompanyName())) {
-            throw new RuntimeException("Company with name '" + request.getCompanyName() + "' already exists.");
+            throw new IllegalArgumentException("Company with name '" + request.getCompanyName() + "' already exists.");
         }
 
         // 2. Сохраняем компанию
@@ -80,12 +88,12 @@ public class DemoService {
         company.setName(request.getCompanyName());
         company.setDescription("Компания из демо-запроса (с транзакцией)");
         company.setIndustry("IT");
-        company.setLocation("Москва");
-        company.setWebsite("https://example.com");
+        company.setLocation(DEFAULT_LOCATION);
+        company.setWebsite(DEFAULT_WEBSITE);
         company.setContactEmail("contact@" + request.getCompanyName().toLowerCase().replace(" ", "") + ".com");
 
         Company savedCompany = companyRepository.save(company);
-        System.out.println("✅ ШАГ 1: Компания сохранена (в контексте)!");
+        log.info("✅ ШАГ 1: Компания сохранена (в контексте)!");
 
         // 3. Валидация формата email (после сохранения компании)
         if (!isValidEmail(request.getEmployerEmail())) {
@@ -97,11 +105,11 @@ public class DemoService {
         employer.setFirstName(request.getEmployerFirstName());
         employer.setLastName(request.getEmployerLastName());
         employer.setEmail(request.getEmployerEmail());
-        employer.setPhoneNumber("+79001234567");
+        employer.setPhoneNumber(DEFAULT_PHONE);
         employer.setCompany(savedCompany);
 
         employerRepository.save(employer); // При ошибке (дубликат email) транзакция откатится
-        System.out.println("✅ ШАГ 2: Работодатель сохранен!");
+        log.info(EMPLOYER_SAVED_MSG);
     }
 
     /**
@@ -109,22 +117,22 @@ public class DemoService {
      */
     @Transactional
     public void saveSuccessfully(DemoRequest request) {
-        System.out.println("\n========== МЕТОД УСПЕШНОГО СОХРАНЕНИЯ ==========");
+        log.info("\n========== МЕТОД УСПЕШНОГО СОХРАНЕНИЯ ==========");
 
         if (companyRepository.existsByName(request.getCompanyName())) {
-            throw new RuntimeException("Company with name '" + request.getCompanyName() + "' already exists.");
+            throw new IllegalArgumentException("Company with name '" + request.getCompanyName() + "' already exists.");
         }
 
         Company company = new Company();
         company.setName(request.getCompanyName());
         company.setDescription("Успешная компания");
         company.setIndustry("IT");
-        company.setLocation("Москва");
-        company.setWebsite("https://example.com");
+        company.setLocation(DEFAULT_LOCATION);
+        company.setWebsite(DEFAULT_WEBSITE);
         company.setContactEmail("hr@example.com");
 
         Company savedCompany = companyRepository.save(company);
-        System.out.println("✅ ШАГ 1: Компания сохранена!");
+        log.info("✅ ШАГ 1: Компания сохранена!");
 
         // Валидация формата email
         if (!isValidEmail(request.getEmployerEmail())) {
@@ -135,11 +143,11 @@ public class DemoService {
         employer.setFirstName(request.getEmployerFirstName());
         employer.setLastName(request.getEmployerLastName());
         employer.setEmail(request.getEmployerEmail());
-        employer.setPhoneNumber("+79001234567");
+        employer.setPhoneNumber(DEFAULT_PHONE);
         employer.setCompany(savedCompany);
 
-        Employer savedEmployer = employerRepository.save(employer);
-        System.out.println("✅ ШАГ 2: Работодатель сохранен!");
+        employerRepository.save(employer); // Неиспользуемая переменная savedEmployer удалена
+        log.info(EMPLOYER_SAVED_MSG);
     }
 
     // Простейшая проверка формата email
