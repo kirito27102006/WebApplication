@@ -34,12 +34,14 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         // Создаем компании
+        String name = "TechCorp";
+        String city = "Москва";
         if (companyRepository.count() == 0) {
             Company techCorp = new Company();
-            techCorp.setName("TechCorp");
+            techCorp.setName(name);
             techCorp.setDescription("Leading technology company");
             techCorp.setIndustry("IT");
-            techCorp.setLocation("Москва");
+            techCorp.setLocation(city);
             techCorp.setWebsite("https://techcorp.com");
             techCorp.setContactEmail("hr@techcorp.com");
             companyRepository.save(techCorp);
@@ -56,7 +58,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем работодателей
         if (employerRepository.count() == 0) {
-            Company techCorp = companyRepository.findByName("TechCorp").orElse(null);
+            Company techCorp = companyRepository.findByName(name).orElse(null);
             if (techCorp != null) {
                 Employer employer1 = new Employer();
                 employer1.setFirstName("Алексей");
@@ -89,7 +91,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // Создаем вакансии
         if (vacancyRepository.count() == 0) {
-            Company techCorp = companyRepository.findByName("TechCorp").orElse(null);
+            Company techCorp = companyRepository.findByName(name).orElse(null);
             Employer hr = employerRepository.findByEmail("hr@techcorp.com").orElse(null);
 
             if (techCorp != null) {
@@ -98,7 +100,7 @@ public class DataInitializer implements CommandLineRunner {
                 vac1.setDescription("Разработка на Java Spring");
                 vac1.setSalary(200000);
                 vac1.setRequiredExperience(3);
-                vac1.setLocation("Москва");
+                vac1.setLocation(city);
                 vac1.setCompany(techCorp);
                 vac1.setCreatedBy(hr);
                 vacancyRepository.save(vac1);
@@ -108,7 +110,7 @@ public class DataInitializer implements CommandLineRunner {
                 vac2.setDescription("Разработка на React");
                 vac2.setSalary(180000);
                 vac2.setRequiredExperience(2);
-                vac2.setLocation("Москва");
+                vac2.setLocation(city);
                 vac2.setCompany(techCorp);
                 vac2.setCreatedBy(hr);
                 vacancyRepository.save(vac2);
@@ -125,7 +127,7 @@ public class DataInitializer implements CommandLineRunner {
                 resume.setExperience("3 года в разработке");
                 resume.setEducation("МГУ, Прикладная математика");
                 resume.setExpectedSalary(200000);
-                resume.setLocation("Москва");
+                resume.setLocation(city);
                 resume.setUser(ivan);
                 resumeRepository.save(resume);
             }
