@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.VacancyCreateRequest;
 import org.example.jobsearchplatform.dto.VacancyResponse;
@@ -12,13 +13,15 @@ import org.example.jobsearchplatform.repository.EmployerRepository;
 import org.example.jobsearchplatform.service.mapper.VacancyMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class VacancyService {
+
+    private static final String VACANCY_NOT_FOUND = "Vacancy not found with id: ";
 
     private final VacancyRepository vacancyRepository;
     private final CompanyRepository companyRepository;
@@ -27,12 +30,13 @@ public class VacancyService {
 
     public VacancyResponse createVacancy(VacancyCreateRequest request) {
         Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + request.getCompanyId()));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + request.getCompanyId()));
 
         Employer createdBy = null;
         if (request.getCreatedById() != null) {
             createdBy = employerRepository.findById(request.getCreatedById())
-                    .orElseThrow(() -> new RuntimeException("Employer not found with id: " + request.getCreatedById()));
+                    .orElseThrow(() -> new EntityNotFoundException("Employer not fo" +
+                            "und with id: " + request.getCreatedById()));
         }
 
         Vacancy vacancy = vacancyMapper.toEntity(request, company, createdBy);
@@ -43,7 +47,7 @@ public class VacancyService {
     public VacancyResponse findById(Long id) {
         // ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД С JOIN FETCH
         Vacancy vacancy = vacancyRepository.findByIdWithJoins(id)
-                .orElseThrow(() -> new RuntimeException("Vacancy not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
         return vacancyMapper.toResponse(vacancy);
     }
 
@@ -51,7 +55,7 @@ public class VacancyService {
         // ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД С JOIN FETCH
         return vacancyRepository.findAllWithJoins().stream()
                 .map(vacancyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<VacancyResponse> searchVacancies(
@@ -63,27 +67,27 @@ public class VacancyService {
         return vacancyRepository.searchVacanciesWithJoins(title, location, minSalary, maxExperience)
                 .stream()
                 .map(vacancyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<VacancyResponse> findByCompany(Long companyId) {
-
         return vacancyRepository.findByCompanyIdWithJoins(companyId).stream()
                 .map(vacancyMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public VacancyResponse updateVacancy(Long id, VacancyCreateRequest request) {
         Vacancy vacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vacancy not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
 
         Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + request.getCompanyId()));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + request.getCompanyId()));
 
         Employer createdBy = null;
         if (request.getCreatedById() != null) {
             createdBy = employerRepository.findById(request.getCreatedById())
-                    .orElseThrow(() -> new RuntimeException("Employer not found with id: " + request.getCreatedById()));
+                    .orElseThrow(() -> new EntityNotFoundException("Employer not fo" +
+                            "und with id: " + request.getCreatedById()));
         }
 
         vacancy.setTitle(request.getTitle());
@@ -100,7 +104,7 @@ public class VacancyService {
 
     public void closeVacancy(Long id) {
         Vacancy vacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vacancy not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
         vacancy.setStatus("CLOSED");
         vacancyRepository.save(vacancy);
     }
