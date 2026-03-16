@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.ResumeCreateRequest;
 import org.example.jobsearchplatform.dto.ResumeResponse;
@@ -10,13 +11,15 @@ import org.example.jobsearchplatform.repository.UserRepository;
 import org.example.jobsearchplatform.service.mapper.ResumeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ResumeService {
+
+    private static final String RESUME_NOT_FOUND = "Resume not found with id: ";
 
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
@@ -33,14 +36,14 @@ public class ResumeService {
 
     public ResumeResponse findById(Long id) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Resume not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
         return resumeMapper.toResponse(resume);
     }
 
     public List<ResumeResponse> findByUser(Long userId) {
         return resumeRepository.findByUserId(userId).stream()
                 .map(resumeMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ResumeResponse> searchResumes(String skill, String location, Integer maxSalary) {
@@ -58,12 +61,12 @@ public class ResumeService {
 
         return resumes.stream()
                 .map(resumeMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ResumeResponse updateResume(Long id, ResumeCreateRequest request) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Resume not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
 
         resume.setTitle(request.getTitle());
         resume.setSkills(request.getSkills());
@@ -78,7 +81,7 @@ public class ResumeService {
 
     public void hideResume(Long id) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Resume not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
         resume.setStatus("HIDDEN");
         resumeRepository.save(resume);
     }

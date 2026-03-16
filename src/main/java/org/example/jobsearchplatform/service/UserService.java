@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.UserCreateRequest;
 import org.example.jobsearchplatform.dto.UserResponse;
@@ -8,20 +9,22 @@ import org.example.jobsearchplatform.repository.UserRepository;
 import org.example.jobsearchplatform.service.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
 
+    private static final String USER_NOT_FOUND_ID = "User not found with id: ";
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User with email " + request.getEmail() + " already exists");
+            throw new IllegalArgumentException("User with email " + request.getEmail() + " already exists");
         }
 
         User user = userMapper.toEntity(request);
@@ -31,7 +34,7 @@ public class UserService {
 
     public UserResponse findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
         return userMapper.toResponse(user);
     }
 
@@ -44,18 +47,18 @@ public class UserService {
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
                 .map(userMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<UserResponse> findByStatus(String status) {
         return userRepository.findByStatus(status).stream()
                 .map(userMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public UserResponse updateUser(Long id, UserCreateRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -67,14 +70,14 @@ public class UserService {
 
     public void blockUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
         user.setStatus("BLOCKED");
         userRepository.save(user);
     }
 
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
         user.setStatus("DELETED");
         userRepository.save(user);
     }
