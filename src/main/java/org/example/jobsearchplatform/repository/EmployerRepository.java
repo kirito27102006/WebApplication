@@ -13,5 +13,5 @@ public interface EmployerRepository extends JpaRepository<Employer, Long> {
 
     List<Employer> findByCompanyId(Long companyId);
 
-    boolean existsByEmail(String email);  // УБЕДИТЕСЬ, ЧТО ЭТОТ МЕТОД ПРИСУТСТВУЕТ
+    boolean existsByEmail(String email);
 }

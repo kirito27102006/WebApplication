@@ -27,8 +27,6 @@ public class VacancyCreateRequest {
     @Size(max = 100, message = "Location must not exceed 100 characters")
     private String location;
 
-    @NotNull(message = "Company ID is required")
-    private Long companyId;
-
+    @NotNull(message = "Employer ID is required")
     private Long createdById;
 }

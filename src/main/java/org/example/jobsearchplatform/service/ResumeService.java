@@ -6,6 +6,8 @@ import org.example.jobsearchplatform.dto.ResumeCreateRequest;
 import org.example.jobsearchplatform.dto.ResumeResponse;
 import org.example.jobsearchplatform.model.Resume;
 import org.example.jobsearchplatform.model.User;
+import org.example.jobsearchplatform.model.enums.ResumeStatus;
+import org.example.jobsearchplatform.repository.ApplicationRepository;
 import org.example.jobsearchplatform.repository.ResumeRepository;
 import org.example.jobsearchplatform.repository.UserRepository;
 import org.example.jobsearchplatform.service.mapper.ResumeMapper;
@@ -23,6 +25,7 @@ public class ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
     private final ResumeMapper resumeMapper;
 
     public ResumeResponse createResume(ResumeCreateRequest request) {
@@ -82,11 +85,17 @@ public class ResumeService {
     public void hideResume(Long id) {
         Resume resume = resumeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
-        resume.setStatus("HIDDEN");
-        resumeRepository.save(resume);
+        resume.setStatus(ResumeStatus.HIDDEN);
     }
 
     public void deleteResume(Long id) {
-        resumeRepository.deleteById(id);
+        Resume resume = resumeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
+
+        if (applicationRepository.existsByResumeId(id)) {
+            throw new IllegalStateException("Cannot delete resume because it has associated applications");
+        }
+
+        resumeRepository.delete(resume);
     }
 }

@@ -2,6 +2,7 @@ package org.example.jobsearchplatform.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.VacancyCreateRequest;
 import org.example.jobsearchplatform.dto.VacancyResponse;
 import org.example.jobsearchplatform.model.Vacancy;
@@ -21,8 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/vacancies")
 @RequiredArgsConstructor
@@ -30,8 +34,6 @@ public class VacancyController {
 
     private final VacancyService vacancyService;
     private final VacancyRepository vacancyRepository;
-    private static final String BP = "</b></p>";
-    private static final String DIV = "</div>";
 
     @GetMapping("/{id}")
     public ResponseEntity<VacancyResponse> getVacancyById(@PathVariable Long id) {
@@ -56,64 +58,63 @@ public class VacancyController {
         return ResponseEntity.ok(vacancyService.findAll());
     }
 
-    // ВРЕМЕННЫЙ МЕТОД ДЛЯ ДЕМОНСТРАЦИИ N+1 ПРОБЛЕМЫ - ИСПРАВЛЕНО!
-    @GetMapping("/bad/{id}")
-    public String demonstrateNPlusOne(@PathVariable Long id) {
-        StringBuilder log = new StringBuilder("<html><body style='font-family: Arial; padding: 20px;'>");
-        log.append("<h2 style='color: #d9534f;'>🔴 ДЕМОНСТРАЦИЯ N+1 ПРОБЛЕМЫ</h2>");
 
-        try {
-            // 1. Плохой способ - без fetch join
-            log.append("<div style='background-color: #f2dede; padding: 15px; border-radius: 5px; margin: 10px 0;'>");
-            log.append("<h3 style='color: #a94442;'>1. Запрос БЕЗ fetch join (будет N+1 запросов):</h3>");
+    @GetMapping("/demo/nplus1/{id}")
+    public ResponseEntity<Map<String, String>> demonstrateNPlusOneProblem(@PathVariable Long id) {
+        log.info("========== ДЕМОНСТРАЦИЯ ПРОБЛЕМЫ N+1 ==========");
+        log.info("1. Запрос БЕЗ fetch join (вызов vacancyRepository.findById()):");
 
-            Vacancy badVacancy = vacancyRepository.findById(id).orElseThrow();
 
-            log.append("<p>✅ Загружена вакансия: <b>").append(badVacancy.getTitle()).append(BP);
-            log.append("<p>🔄 Отдельный запрос к компании: <b>").append(badVacancy.getCompany()
-                    .getName()).append(BP);
+        Vacancy badVacancy = vacancyRepository.findById(id)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Vacancy not found"));
 
-            if (badVacancy.getCreatedBy() != null) {
-                log.append("<p>🔄 Отдельный запрос к создателю: <b>").append(badVacancy
-                        .getCreatedBy().getFirstName()).append(BP);
-            }
+        log.info("   ✅ Загружена вакансия: {}", badVacancy.getTitle());
 
-            // УДАЛЕНО: обращение к getApplications()
+        // Теперь company доступна через createdBy
+        String companyName = badVacancy.getCreatedBy().getCompany().getName();
+        log.info("   🔄 Отдельный запрос к компании (LazyInitializationException " +
+                "не будет, т.к. мы в транзакции? но запрос будет): {}", companyName);
 
-            log.append("<p style='color: #a94442;'><b>📊 ИТОГО: 1 + N запросов к БД</b></p>");
-            log.append(DIV);
-
-            // 2. Хороший способ - с fetch join
-            log.append("<div style='background-color: #dff0d8; padding: 15px; border-radius: 5px; margin: 10px 0;'>");
-            log.append("<h3 style='color: #3c763d;'>2. Запрос С fetch join (один запрос):</h3>");
-
-            Vacancy goodVacancy = vacancyRepository.findByIdWithJoins(id).orElseThrow();
-
-            log.append("<p>✅ Загружена вакансия: <b>").append(goodVacancy.getTitle()).append(BP);
-            log.append("<p>✅ Компания (уже загружена): <b>").append(goodVacancy.getCompany()
-                    .getName()).append(BP);
-
-            if (goodVacancy.getCreatedBy() != null) {
-                log.append("<p>✅ Создатель (уже загружен): <b>").append(goodVacancy
-                        .getCreatedBy().getFirstName()).append(BP);
-            }
-
-            // УДАЛЕНО: обращение к getApplications()
-
-            log.append("<p style='color: #3c763d;'><b>📊 ИТОГО: 1 запрос к БД</b></p>");
-            log.append(DIV);
-
-            log.append("<p style='font-size: 18px;'><b>👉 Смотри в консоль! Во втором случае будет " +
-                    "ОДИН запрос вместо N+1</b></p>");
-
-        } catch (Exception e) {
-            log.append("<div style='background-color: #f2dede; padding: 15px; border-radius: 5px;'>");
-            log.append("<p style='color: #a94442;'><b>❌ Ошибка: ").append(e.getMessage()).append(BP);
-            log.append(DIV);
+        if (badVacancy.getCreatedBy() != null) {
+            String creatorName = badVacancy.getCreatedBy().getFirstName();
+            log.info("   🔄 Отдельный запрос к создателю: {}", creatorName);
         }
 
-        log.append("</body></html>");
-        return log.toString();
+        log.info("   📊 ИТОГО: 1 (вакансия) + N (связанные сущности) запросов к БД");
+        log.info("========== Демонстрация завершена ==========");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Демонстрация проблемы N+1 выполнена. Проверьте " +
+                "логи приложения и количество SQL-запросов.");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/demo/solution/{id}")
+    public ResponseEntity<Map<String, String>> demonstrateNPlusOneSolution(@PathVariable Long id) {
+        log.info("========== ДЕМОНСТРАЦИЯ РЕШЕНИЯ ПРОБЛЕМЫ N+1 ==========");
+        log.info("2. Запрос С FETCH JOIN (вызов vacancyRepository.findByIdWithJoins()):");
+        log.info("   🔍 В репозитории используется @Query с LEFT JOIN FETCH для createdBy и его company");
+
+        Vacancy goodVacancy = vacancyRepository.findByIdWithJoins(id)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Vacancy not found"));
+
+        log.info("   ✅ Загружена вакансия: {}", goodVacancy.getTitle());
+
+        String goodCompanyName = goodVacancy.getCreatedBy().getCompany().getName();
+        log.info("   ✅ Компания загружена через FETCH JOIN (без дополнительного запроса): {}", goodCompanyName);
+
+        if (goodVacancy.getCreatedBy() != null) {
+            String goodCreatorName = goodVacancy.getCreatedBy().getFirstName();
+            log.info("   ✅ Создатель загружен через FETCH JOIN (без дополнительного запроса): {}", goodCreatorName);
+        }
+
+        log.info("   📊 ИТОГО: 1 запрос к БД (все данные получены за один раз)");
+        log.info("========== Демонстрация завершена ==========");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Демонстрация решения проблемы N+1 выполнена. " +
+                "Проверьте логи приложения и количество SQL-запросов.");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

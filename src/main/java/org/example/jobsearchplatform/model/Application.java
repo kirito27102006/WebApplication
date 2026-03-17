@@ -11,64 +11,53 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.Data;
-import org.example.jobsearchplatform.model.enums.ResumeStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.ToString;
+import org.example.jobsearchplatform.model.enums.ApplicationStatus;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "resumes")
-@Data
-public class Resume {
+@Table(name = "applications")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Application {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vacancy_id", nullable = false)
+    @ToString.Exclude
+    private Vacancy vacancy;
 
-    @Column(length = 2000)
-    private String skills;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resume_id", nullable = false)
+    @ToString.Exclude
+    private Resume resume;
 
-    @Column(length = 2000)
-    private String experience;
-
-    @Column(length = 2000)
-    private String education;
-
-    @Column(name = "expected_salary")
-    private Integer expectedSalary;
-
-    @Column(length = 50)
-    private String location;
+    @Column(name = "cover_letter", length = 2000)
+    private String coverLetter;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private ResumeStatus status;
+    private ApplicationStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
-    private User user;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         if (status == null) {
-            status = ResumeStatus.ACTIVE;
+            status = ApplicationStatus.PENDING;
         }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

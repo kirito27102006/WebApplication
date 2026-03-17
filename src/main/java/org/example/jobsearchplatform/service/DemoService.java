@@ -18,19 +18,12 @@ public class DemoService {
     private final CompanyRepository companyRepository;
     private final EmployerRepository employerRepository;
 
-    // Константы для устранения дублирования литералов
     private static final String DEFAULT_LOCATION = "Москва";
     private static final String DEFAULT_WEBSITE = "https://example.com";
     private static final String DEFAULT_PHONE = "+79001234567";
     private static final String EMPLOYER_SAVED_MSG = "✅ ШАГ 2: Работодатель сохранен!";
 
-    // ==================== Публичные методы (точки входа) ====================
 
-    /**
-     * Метод БЕЗ @Transactional.
-     * Компания сохраняется всегда, даже если работодатель не сохранится.
-     * Если email некорректен (формат или дубликат), выбрасывается исключение ПОСЛЕ сохранения компании.
-     */
     public void saveWithoutTransaction(DemoRequest request) {
         log.info("\n========== МЕТОД БЕЗ @Transactional ==========");
         executeSave(request,
@@ -38,11 +31,6 @@ public class DemoService {
                 buildContactEmail(request.getCompanyName())); // динамический email
     }
 
-    /**
-     * Метод С @Transactional.
-     * Если возникает ошибка при сохранении работодателя (некорректный email или дубликат), всё откатывается.
-     * Валидация формата email выполняется после сохранения компании, но до коммита.
-     */
     @Transactional
     public void saveWithTransaction(DemoRequest request) {
         log.info("\n========== МЕТОД С @Transactional ==========");
@@ -51,37 +39,20 @@ public class DemoService {
                 buildContactEmail(request.getCompanyName()));
     }
 
-    /**
-     * Успешное сохранение (с транзакцией) — для демонстрации.
-     */
     @Transactional
     public void saveSuccessfully(DemoRequest request) {
         log.info("\n========== МЕТОД УСПЕШНОГО СОХРАНЕНИЯ ==========");
-        // Для успешного сценария contactEmail фиксированный, не вычисляемый
         executeSave(request, "Успешная компания", "hr@example.com");
     }
 
-    // ==================== Вспомогательные приватные методы ====================
-
-    /**
-     * Общая последовательность операций для всех трёх методов.
-     * @param request данные запроса
-     * @param companyDescription описание компании (разное для каждого метода)
-     * @param contactEmail контактный email компании
-     */
     private void executeSave(DemoRequest request, String companyDescription, String contactEmail) {
-        // 1. Проверка дубликата компании
         checkCompanyNotExists(request.getCompanyName());
-
-        // 2. Создание и сохранение компании
         Company company = buildCompany(request, companyDescription, contactEmail);
         Company savedCompany = saveCompany(company);
         log.info("✅ ШАГ 1: Компания сохранена! ID: {}", savedCompany.getId());
 
-        // 3. Валидация формата email работодателя
         validateEmail(request.getEmployerEmail());
 
-        // 4. Создание и сохранение работодателя
         Employer employer = buildEmployer(request, savedCompany);
         saveEmployer(employer);
         log.info(EMPLOYER_SAVED_MSG);
@@ -132,7 +103,6 @@ public class DemoService {
         return "contact@" + companyName.toLowerCase().replace(" ", "") + ".com";
     }
 
-    // Простейшая проверка формата email
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }

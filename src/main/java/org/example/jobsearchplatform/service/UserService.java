@@ -2,16 +2,24 @@ package org.example.jobsearchplatform.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.UserCreateRequest;
 import org.example.jobsearchplatform.dto.UserResponse;
+import org.example.jobsearchplatform.model.Resume;
 import org.example.jobsearchplatform.model.User;
+import org.example.jobsearchplatform.model.enums.ResumeStatus;
+import org.example.jobsearchplatform.model.enums.UserStatus;
+import org.example.jobsearchplatform.repository.ApplicationRepository;
+import org.example.jobsearchplatform.repository.ResumeRepository;
 import org.example.jobsearchplatform.repository.UserRepository;
 import org.example.jobsearchplatform.service.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -20,6 +28,8 @@ public class UserService {
     private static final String USER_NOT_FOUND_ID = "User not found with id: ";
 
     private final UserRepository userRepository;
+    private final ResumeRepository resumeRepository;
+    private final ApplicationRepository applicationRepository;
     private final UserMapper userMapper;
 
     public UserResponse createUser(UserCreateRequest request) {
@@ -51,9 +61,14 @@ public class UserService {
     }
 
     public List<UserResponse> findByStatus(String status) {
-        return userRepository.findByStatus(status).stream()
-                .map(userMapper::toResponse)
-                .toList();
+        try {
+            UserStatus userStatus = UserStatus.valueOf(status.toUpperCase());
+            return userRepository.findByStatus(userStatus).stream()
+                    .map(userMapper::toResponse)
+                    .toList();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status value: " + status);
+        }
     }
 
     public UserResponse updateUser(Long id, UserCreateRequest request) {
@@ -71,14 +86,76 @@ public class UserService {
     public void blockUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
-        user.setStatus("BLOCKED");
-        userRepository.save(user);
+        user.setStatus(UserStatus.BLOCKED);
     }
 
+    /**
+     * Удаление пользователя:
+     * - Если у пользователя есть хотя бы одно резюме с откликами → мягкое удаление (статус DELETED).
+     * - Иначе → физическое удаление пользователя и всех его резюме (без откликов).
+     */
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
-        user.setStatus("DELETED");
+
+        List<Resume> userResumes = resumeRepository.findByUserId(id);
+
+        // Проверяем, есть ли у какого-либо резюме отклики
+        boolean hasApplications = userResumes.stream()
+                .anyMatch(resume -> applicationRepository.existsByResumeId(resume.getId()));
+
+        if (hasApplications) {
+            // Мягкое удаление: меняем статус пользователя, резюме помечаем как USER_DELETED
+            log.info("User {} has applications – performing soft delete", id);
+            user.setStatus(UserStatus.DELETED);
+
+            for (Resume resume : userResumes) {
+                resume.setStatus(ResumeStatus.USER_DELETED);
+            }
+            // Сохранять изменения отдельно не нужно, т.к. транзакция закроется и изменения будут зафлашены
+        } else {
+            // Физическое удаление: удаляем все резюме, затем пользователя
+            log.info("User {} has no applications – performing hard delete", id);
+            // Очищаем связь с навыками (если необходимо)
+            user.getSkills().clear();
+            // Удаляем все резюме (они не имеют откликов)
+            resumeRepository.deleteAll(userResumes);
+            // Удаляем пользователя
+            userRepository.delete(user);
+        }
+    }
+
+    /**
+     * Полное физическое удаление пользователя (для административных нужд).
+     * Сохраняет резюме с откликами, помечая их как USER_DELETED, остальные удаляет.
+     */
+    public void hardDeleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
+
+        List<Resume> userResumes = resumeRepository.findByUserId(id);
+
+        List<Resume> toDelete = new ArrayList<>();
+        List<Resume> toKeep = new ArrayList<>();
+
+        for (Resume resume : userResumes) {
+            if (applicationRepository.existsByResumeId(resume.getId())) {
+                toKeep.add(resume);
+            } else {
+                toDelete.add(resume);
+            }
+        }
+
+        for (Resume resume : toKeep) {
+            resume.setUser(null);
+            resume.setStatus(ResumeStatus.USER_DELETED);
+        }
+
+        resumeRepository.deleteAll(toDelete);
+
+        user.getSkills().clear();
         userRepository.save(user);
+
+        userRepository.delete(user);
     }
 }

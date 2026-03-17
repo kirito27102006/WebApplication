@@ -14,6 +14,5 @@ public class CompanyResponse {
     private String contactEmail;
     private String contactPhone;
     private LocalDateTime createdAt;
-    private Integer vacanciesCount;
     private Integer employersCount;
 }

@@ -29,13 +29,12 @@ public class DataInitializer implements CommandLineRunner {
     private final VacancyRepository vacancyRepository;
     private final ResumeRepository resumeRepository;
     private final SkillRepository skillRepository;
-    private final SkillService skillService;  // внедряем новый сервис
+    private final SkillService skillService;
     private static final String EMAILTWO = "ivan@example.com";
 
     @Override
     @Transactional
     public void run(String... args) {
-        // Создаем компании
         String name = "TechCorp";
         String city = "Москва";
         String emailOne = "hr@techcorp.com";
@@ -60,7 +59,7 @@ public class DataInitializer implements CommandLineRunner {
             companyRepository.save(bank);
         }
 
-        // Создаем работодателей
+
         if (employerRepository.count() == 0) {
             Company techCorp = companyRepository.findByName(name).orElse(null);
             if (techCorp != null) {
@@ -73,7 +72,7 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // Создаем пользователей
+
         if (userRepository.count() == 0) {
             User user1 = new User();
             user1.setFirstName("Иван");
@@ -90,23 +89,19 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(user2);
         }
 
-        // Вызовы методов через сервис (теперь транзакции работают корректно)
         skillService.createSkills();
         skillService.assignSkillsToUsers(EMAILTWO);
 
-        // Создаем вакансии
         if (vacancyRepository.count() == 0) {
-            Company techCorp = companyRepository.findByName(name).orElse(null);
             Employer hr = employerRepository.findByEmail(emailOne).orElse(null);
 
-            if (techCorp != null) {
+            if (hr != null) {
                 Vacancy vac1 = new Vacancy();
                 vac1.setTitle("Java Developer");
                 vac1.setDescription("Разработка на Java Spring");
                 vac1.setSalary(200000);
                 vac1.setRequiredExperience(3);
                 vac1.setLocation(city);
-                vac1.setCompany(techCorp);
                 vac1.setCreatedBy(hr);
                 vacancyRepository.save(vac1);
 
@@ -116,13 +111,11 @@ public class DataInitializer implements CommandLineRunner {
                 vac2.setSalary(180000);
                 vac2.setRequiredExperience(2);
                 vac2.setLocation(city);
-                vac2.setCompany(techCorp);
                 vac2.setCreatedBy(hr);
                 vacancyRepository.save(vac2);
             }
         }
 
-        // Создаем резюме
         if (resumeRepository.count() == 0) {
             User ivan = userRepository.findByEmail(EMAILTWO).orElse(null);
             if (ivan != null) {

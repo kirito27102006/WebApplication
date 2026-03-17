@@ -30,7 +30,7 @@ public class ResumeMapper {
         response.setEducation(resume.getEducation());
         response.setExpectedSalary(resume.getExpectedSalary());
         response.setLocation(resume.getLocation());
-        response.setStatus(resume.getStatus());
+        response.setStatus(resume.getStatus().name());
         response.setCreatedAt(resume.getCreatedAt());
         response.setUpdatedAt(resume.getUpdatedAt());
 

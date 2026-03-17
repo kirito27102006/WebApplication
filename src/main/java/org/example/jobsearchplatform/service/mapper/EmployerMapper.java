@@ -26,7 +26,7 @@ public class EmployerMapper {
         response.setLastName(employer.getLastName());
         response.setEmail(employer.getEmail());
         response.setPhoneNumber(employer.getPhoneNumber());
-        response.setStatus(employer.getStatus());
+        response.setStatus(employer.getStatus().name());
         response.setCreatedAt(employer.getCreatedAt());
 
         if (employer.getCompany() != null) {

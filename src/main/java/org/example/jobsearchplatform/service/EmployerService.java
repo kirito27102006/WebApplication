@@ -6,8 +6,10 @@ import org.example.jobsearchplatform.dto.EmployerCreateRequest;
 import org.example.jobsearchplatform.dto.EmployerResponse;
 import org.example.jobsearchplatform.model.Employer;
 import org.example.jobsearchplatform.model.Company;
+import org.example.jobsearchplatform.model.enums.EmployerStatus;
 import org.example.jobsearchplatform.repository.EmployerRepository;
 import org.example.jobsearchplatform.repository.CompanyRepository;
+import org.example.jobsearchplatform.repository.VacancyRepository;
 import org.example.jobsearchplatform.service.mapper.EmployerMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class EmployerService {
 
     private final EmployerRepository employerRepository;
     private final CompanyRepository companyRepository;
+    private final VacancyRepository vacancyRepository;
     private final EmployerMapper employerMapper;
 
     public EmployerResponse createEmployer(EmployerCreateRequest request) {
@@ -81,14 +84,17 @@ public class EmployerService {
     public void blockEmployer(Long id) {
         Employer employer = employerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(EMPLOYER_NOT_FOUND_ID + id));
-        employer.setStatus("BLOCKED");
-        employerRepository.save(employer);
+        employer.setStatus(EmployerStatus.BLOCKED);
     }
 
     public void deleteEmployer(Long id) {
         Employer employer = employerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(EMPLOYER_NOT_FOUND_ID + id));
-        employer.setStatus("DELETED");
-        employerRepository.save(employer);
+
+        if (vacancyRepository.existsByCreatedById(id)) {
+            throw new IllegalStateException("Cannot delete employer with existing vacancies");
+        }
+
+        employerRepository.delete(employer);
     }
 }

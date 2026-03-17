@@ -1,6 +1,7 @@
 package org.example.jobsearchplatform.repository;
 
 import org.example.jobsearchplatform.model.Resume;
+import org.example.jobsearchplatform.model.enums.ResumeStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ public interface ResumeRepository extends JpaRepository<Resume, Long> {
 
     List<Resume> findByUserId(Long userId);
 
-    List<Resume> findByStatus(String status);
+    List<Resume> findByStatus(ResumeStatus status);
 
     List<Resume> findByLocationContainingIgnoreCase(String location);
 

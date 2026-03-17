@@ -27,7 +27,7 @@ public class UserMapper {
         response.setLastName(user.getLastName());
         response.setEmail(user.getEmail());
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setStatus(user.getStatus());
+        response.setStatus(user.getStatus().name());
         response.setCreatedAt(user.getCreatedAt());
         response.setResumesCount(user.getResumes().size());
         if (user.getSkills() != null && !user.getSkills().isEmpty()) {
