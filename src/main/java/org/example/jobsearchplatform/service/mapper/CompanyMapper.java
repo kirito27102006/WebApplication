@@ -31,8 +31,6 @@ public class CompanyMapper {
         response.setContactEmail(company.getContactEmail());
         response.setContactPhone(company.getContactPhone());
         response.setCreatedAt(company.getCreatedAt());
-        // Vacancies count is no longer directly available; can be calculated via employer query if needed
-        // response.setVacanciesCount(...);
         response.setEmployersCount(company.getEmployers().size());
         return response;
     }
