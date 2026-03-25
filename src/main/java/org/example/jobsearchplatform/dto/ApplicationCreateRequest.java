@@ -13,7 +13,7 @@ public class ApplicationCreateRequest {
     @NotNull(message = "Vacancy ID is required")
     private Long vacancyId;
 
-    @NotNull(message = "Resume ID is required") // теперь резюме обязательно, так как через него связь с User
+    @NotNull(message = "Resume ID is required")
     private Long resumeId;
 
     @Size(max = 2000, message = "Cover letter must not exceed 2000 characters")

@@ -2,6 +2,7 @@ package org.example.jobsearchplatform.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.ResumeCreateRequest;
 import org.example.jobsearchplatform.dto.ResumeResponse;
 import org.example.jobsearchplatform.model.Resume;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,6 +30,14 @@ public class ResumeService {
     private final ApplicationRepository applicationRepository;
     private final ResumeMapper resumeMapper;
 
+    @Transactional(readOnly = true)
+    public List<ResumeResponse> findAll() {
+        log.info("Fetching all resumes with user data");
+        return resumeRepository.findAllWithUser().stream()
+                .map(resumeMapper::toResponse)
+                .toList();
+    }
+
     public ResumeResponse createResume(ResumeCreateRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
@@ -37,29 +47,35 @@ public class ResumeService {
         return resumeMapper.toResponse(savedResume);
     }
 
+    @Transactional(readOnly = true)
     public ResumeResponse findById(Long id) {
-        Resume resume = resumeRepository.findById(id)
+        Resume resume = resumeRepository.findByIdWithUser(id)
                 .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
         return resumeMapper.toResponse(resume);
     }
 
+    @Transactional(readOnly = true)
     public List<ResumeResponse> findByUser(Long userId) {
-        return resumeRepository.findByUserId(userId).stream()
+        if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User not found with id: " + userId);
+        }
+        return resumeRepository.findByUserIdWithUser(userId).stream()
                 .map(resumeMapper::toResponse)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ResumeResponse> searchResumes(String skill, String location, Integer maxSalary) {
         List<Resume> resumes;
 
         if (skill != null && !skill.isEmpty()) {
-            resumes = resumeRepository.findBySkill(skill);
+            resumes = resumeRepository.findBySkillWithUser(skill);
         } else if (location != null && !location.isEmpty()) {
-            resumes = resumeRepository.findByLocationContainingIgnoreCase(location);
+            resumes = resumeRepository.findByLocationWithUser(location);
         } else if (maxSalary != null) {
-            resumes = resumeRepository.findByExpectedSalaryLessThanEqual(maxSalary);
+            resumes = resumeRepository.findByMaxSalaryWithUser(maxSalary);
         } else {
-            resumes = resumeRepository.findAll();
+            resumes = resumeRepository.findAllWithUser();
         }
 
         return resumes.stream()

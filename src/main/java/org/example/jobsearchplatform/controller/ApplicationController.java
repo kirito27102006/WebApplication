@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.ApplicationCreateRequest;
 import org.example.jobsearchplatform.dto.ApplicationResponse;
 import org.example.jobsearchplatform.service.ApplicationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,6 +39,33 @@ public class ApplicationController {
     public ResponseEntity<ApplicationResponse> getApplicationById(@PathVariable Long id) {
         ApplicationResponse response = applicationService.findById(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ApplicationResponse>> getAllApplications(Pageable pageable) {
+        return ResponseEntity.ok(applicationService.findAll(pageable));
+    }
+
+    @GetMapping("/search/jpql")
+    public ResponseEntity<List<ApplicationResponse>> searchApplicationsJpql(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String vacancyTitle,
+            @RequestParam(required = false) String resumeTitle) {
+        return ResponseEntity.ok(
+                applicationService.searchByFiltersJpql(userId, status, vacancyTitle, resumeTitle)
+        );
+    }
+
+    @GetMapping("/search/native")
+    public ResponseEntity<List<ApplicationResponse>> searchApplicationsNative(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String vacancyTitle,
+            @RequestParam(required = false) String resumeTitle) {
+        return ResponseEntity.ok(
+                applicationService.searchByFiltersNative(userId, status, vacancyTitle, resumeTitle)
+        );
     }
 
     @GetMapping("/user/{userId}")

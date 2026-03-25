@@ -89,46 +89,31 @@ public class UserService {
         user.setStatus(UserStatus.BLOCKED);
     }
 
-    /**
-     * Удаление пользователя:
-     * - Если у пользователя есть хотя бы одно резюме с откликами → мягкое удаление (статус DELETED).
-     * - Иначе → физическое удаление пользователя и всех его резюме (без откликов).
-     */
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
 
         List<Resume> userResumes = resumeRepository.findByUserId(id);
 
-        // Проверяем, есть ли у какого-либо резюме отклики
         boolean hasApplications = userResumes.stream()
                 .anyMatch(resume -> applicationRepository.existsByResumeId(resume.getId()));
 
         if (hasApplications) {
-            // Мягкое удаление: меняем статус пользователя, резюме помечаем как USER_DELETED
             log.info("User {} has applications – performing soft delete", id);
             user.setStatus(UserStatus.DELETED);
 
             for (Resume resume : userResumes) {
                 resume.setStatus(ResumeStatus.USER_DELETED);
             }
-            // Сохранять изменения отдельно не нужно, т.к. транзакция закроется и изменения будут зафлашены
+
         } else {
-            // Физическое удаление: удаляем все резюме, затем пользователя
             log.info("User {} has no applications – performing hard delete", id);
-            // Очищаем связь с навыками (если необходимо)
             user.getSkills().clear();
-            // Удаляем все резюме (они не имеют откликов)
             resumeRepository.deleteAll(userResumes);
-            // Удаляем пользователя
             userRepository.delete(user);
         }
     }
 
-    /**
-     * Полное физическое удаление пользователя (для административных нужд).
-     * Сохраняет резюме с откликами, помечая их как USER_DELETED, остальные удаляет.
-     */
     public void hardDeleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));

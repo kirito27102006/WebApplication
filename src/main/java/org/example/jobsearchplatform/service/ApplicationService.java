@@ -14,6 +14,8 @@ import org.example.jobsearchplatform.repository.ResumeRepository;
 import org.example.jobsearchplatform.repository.UserRepository;
 import org.example.jobsearchplatform.repository.VacancyRepository;
 import org.example.jobsearchplatform.service.mapper.ApplicationMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,26 @@ public class ApplicationService {
     private final ResumeRepository resumeRepository;
     private final UserRepository userRepository;
     private final ApplicationMapper applicationMapper;
+    private final ApplicationSearchIndex applicationSearchIndex = new ApplicationSearchIndex();
+
+    @Transactional(readOnly = true)
+    public Page<ApplicationResponse> findAll(Pageable pageable) {
+        ApplicationSearchCacheKey cacheKey = new ApplicationSearchCacheKey(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().toString()
+        );
+
+        Page<ApplicationResponse> cachedApplications = applicationSearchIndex.get(cacheKey);
+        if (cachedApplications != null) {
+            return cachedApplications;
+        }
+
+        Page<ApplicationResponse> applicationsPage = applicationRepository.findAll(pageable)
+                .map(applicationMapper::toResponse);
+        applicationSearchIndex.put(cacheKey, applicationsPage);
+        return applicationsPage;
+    }
 
     public ApplicationResponse createApplication(ApplicationCreateRequest request) {
         Vacancy vacancy = vacancyRepository.findById(request.getVacancyId())
@@ -40,7 +62,7 @@ public class ApplicationService {
             throw new IllegalStateException("Cannot apply to a vacancy that is not ACTIVE");
         }
 
-        Resume resume = resumeRepository.findById(request.getResumeId())
+        Resume resume = resumeRepository.findByIdWithUser(request.getResumeId())
                 .orElseThrow(() -> new EntityNotFoundException("Resume not found with id: " + request.getResumeId()));
 
         if (resume.getUser() == null) {
@@ -62,6 +84,7 @@ public class ApplicationService {
         application.setStatus(ApplicationStatus.PENDING);
 
         Application saved = applicationRepository.save(application);
+        applicationSearchIndex.clear();
         return applicationMapper.toResponse(saved);
     }
 
@@ -89,17 +112,41 @@ public class ApplicationService {
                 .toList();
     }
 
+    public List<ApplicationResponse> searchByFiltersJpql(Long userId,
+                                                         String status,
+                                                         String vacancyTitle,
+                                                         String resumeTitle) {
+        return applicationRepository.searchByFiltersJpql(
+                        userId,
+                        parseStatus(status),
+                        normalizeJpqlFilter(vacancyTitle),
+                        normalizeJpqlFilter(resumeTitle)
+                ).stream()
+                .map(applicationMapper::toResponse)
+                .toList();
+    }
+
+    public List<ApplicationResponse> searchByFiltersNative(Long userId,
+                                                           String status,
+                                                           String vacancyTitle,
+                                                           String resumeTitle) {
+        return applicationRepository.searchByFiltersNative(
+                        userId,
+                        normalizeStatus(status),
+                        normalizeFilter(vacancyTitle),
+                        normalizeFilter(resumeTitle)
+                ).stream()
+                .map(applicationMapper::toResponse)
+                .toList();
+    }
+
     public ApplicationResponse updateStatus(Long id, String newStatus) {
-        ApplicationStatus status;
-        try {
-            status = ApplicationStatus.valueOf(newStatus.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid status: " + newStatus);
-        }
+        ApplicationStatus status = parseStatus(newStatus);
 
         Application application = applicationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(APPLICATION_NOT_FOUND + id));
         application.setStatus(status);
+        applicationSearchIndex.clear();
         return applicationMapper.toResponse(application);
     }
 
@@ -116,9 +163,44 @@ public class ApplicationService {
         }
 
         application.setStatus(ApplicationStatus.CANCELLED);
+        applicationSearchIndex.clear();
     }
 
     public void deleteApplication(Long id) {
         applicationRepository.deleteById(id);
+        applicationSearchIndex.clear();
+    }
+
+    private ApplicationStatus parseStatus(String status) {
+        String normalizedStatus = normalizeStatus(status);
+        if (normalizedStatus == null) {
+            return null;
+        }
+        try {
+            return ApplicationStatus.valueOf(normalizedStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status: " + status);
+        }
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        return status.trim().toUpperCase();
+    }
+
+    private String normalizeFilter(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
+    private String normalizeJpqlFilter(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return value.trim();
     }
 }

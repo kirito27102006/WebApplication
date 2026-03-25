@@ -21,8 +21,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
     boolean existsByName(String name);
 
-    // Удалён метод findCompaniesWithVacancies(), так как поле vacancies больше не существует
-
     @Query("SELECT c FROM Company c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Company> searchByName(@Param("keyword") String keyword);
 

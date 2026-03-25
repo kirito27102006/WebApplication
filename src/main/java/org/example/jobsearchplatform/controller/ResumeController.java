@@ -34,17 +34,21 @@ public class ResumeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<ResumeResponse> getResumesByUser(@PathVariable Long userId) {
-        return resumeService.findByUser(userId);
-    }
-
     @GetMapping
-    public List<ResumeResponse> searchResumes(
+    public ResponseEntity<List<ResumeResponse>> getAllResumes(
             @RequestParam(required = false) String skill,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) Integer maxSalary) {
-        return resumeService.searchResumes(skill, location, maxSalary);
+
+        if (skill != null || location != null || maxSalary != null) {
+            return ResponseEntity.ok(resumeService.searchResumes(skill, location, maxSalary));
+        }
+        return ResponseEntity.ok(resumeService.findAll());
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<ResumeResponse> getResumesByUser(@PathVariable Long userId) {
+        return resumeService.findByUser(userId);
     }
 
     @PostMapping
