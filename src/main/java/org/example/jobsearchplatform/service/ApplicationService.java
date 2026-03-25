@@ -9,6 +9,7 @@ import org.example.jobsearchplatform.model.Resume;
 import org.example.jobsearchplatform.model.Vacancy;
 import org.example.jobsearchplatform.model.enums.ApplicationStatus;
 import org.example.jobsearchplatform.model.enums.VacancyStatus;
+import org.example.jobsearchplatform.repository.ApplicationNativeSearchView;
 import org.example.jobsearchplatform.repository.ApplicationRepository;
 import org.example.jobsearchplatform.repository.ResumeRepository;
 import org.example.jobsearchplatform.repository.UserRepository;
@@ -48,7 +49,7 @@ public class ApplicationService {
             return cachedApplications;
         }
 
-        Page<ApplicationResponse> applicationsPage = applicationRepository.findAll(pageable)
+        Page<ApplicationResponse> applicationsPage = applicationRepository.findAllWithJoins(pageable)
                 .map(applicationMapper::toResponse);
         applicationSearchIndex.put(cacheKey, applicationsPage);
         return applicationsPage;
@@ -136,7 +137,7 @@ public class ApplicationService {
                         normalizeFilter(vacancyTitle),
                         normalizeFilter(resumeTitle)
                 ).stream()
-                .map(applicationMapper::toResponse)
+                .map(this::mapNativeSearchViewToResponse)
                 .toList();
     }
 
@@ -202,5 +203,20 @@ public class ApplicationService {
             return "";
         }
         return value.trim();
+    }
+
+    private ApplicationResponse mapNativeSearchViewToResponse(ApplicationNativeSearchView view) {
+        ApplicationResponse response = new ApplicationResponse();
+        response.setId(view.getId());
+        response.setUserId(view.getUserId());
+        response.setUserFullName(view.getUserFullName());
+        response.setVacancyId(view.getVacancyId());
+        response.setVacancyTitle(view.getVacancyTitle());
+        response.setResumeId(view.getResumeId());
+        response.setResumeTitle(view.getResumeTitle());
+        response.setCoverLetter(view.getCoverLetter());
+        response.setStatus(view.getStatus());
+        response.setCreatedAt(view.getCreatedAt());
+        return response;
     }
 }
