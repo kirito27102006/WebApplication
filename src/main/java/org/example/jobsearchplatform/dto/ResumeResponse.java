@@ -1,9 +1,11 @@
 package org.example.jobsearchplatform.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
+@Schema(description = "Resume response DTO")
 public class ResumeResponse {
     private Long id;
     private String title;

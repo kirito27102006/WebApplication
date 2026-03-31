@@ -40,7 +40,7 @@ public class ResumeService {
 
     public ResumeResponse createResume(ResumeCreateRequest request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
 
         Resume resume = resumeMapper.toEntity(request, user);
         Resume savedResume = resumeRepository.save(resume);

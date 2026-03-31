@@ -1,11 +1,15 @@
 package org.example.jobsearchplatform.controller;
 
+import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.DemoRequest;
 import org.example.jobsearchplatform.dto.DemoResponse;
 import org.example.jobsearchplatform.service.DemoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +23,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/demo")
 @RequiredArgsConstructor
+@Validated
+@Tag(name = "Demo", description = "Demo endpoints for transaction behavior")
 public class DemoController {
 
     private final DemoService demoService;
@@ -26,7 +32,8 @@ public class DemoController {
     private static final String EMPLOYER = "employer";
 
     @PostMapping("/without-tx")
-    public ResponseEntity<DemoResponse> demonstrateWithoutTransaction(@RequestBody DemoRequest request) {
+    @Operation(summary = "Run demo without transaction")
+    public ResponseEntity<DemoResponse> demonstrateWithoutTransaction(@Valid @RequestBody DemoRequest request) {
         try {
             demoService.saveWithoutTransaction(request);
             return ResponseEntity.ok(DemoResponse.builder()
@@ -56,7 +63,8 @@ public class DemoController {
     }
 
     @PostMapping("/with-tx")
-    public ResponseEntity<DemoResponse> demonstrateWithTransaction(@RequestBody DemoRequest request) {
+    @Operation(summary = "Run demo with transaction")
+    public ResponseEntity<DemoResponse> demonstrateWithTransaction(@Valid @RequestBody DemoRequest request) {
         try {
             demoService.saveWithTransaction(request);
             return ResponseEntity.ok(DemoResponse.builder()
@@ -86,7 +94,8 @@ public class DemoController {
     }
 
     @PostMapping("/success")
-    public ResponseEntity<DemoResponse> demonstrateSuccess(@RequestBody DemoRequest request) {
+    @Operation(summary = "Run successful demo scenario")
+    public ResponseEntity<DemoResponse> demonstrateSuccess(@Valid @RequestBody DemoRequest request) {
         try {
             demoService.saveSuccessfully(request);
             Map<String, Object> details = new HashMap<>();
@@ -112,6 +121,7 @@ public class DemoController {
     }
 
     @GetMapping("/check")
+    @Operation(summary = "Get SQL checks for demo")
     public ResponseEntity<DemoResponse> checkResults() {
         Map<String, Object> details = new HashMap<>();
         details.put("without_tx_sql", "SELECT * FROM companies WHERE name LIKE 'Company_NoTx%'");

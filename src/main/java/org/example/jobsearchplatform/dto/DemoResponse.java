@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Response for demo transaction endpoints")
 public class DemoResponse {
     private boolean success;
     private String message;

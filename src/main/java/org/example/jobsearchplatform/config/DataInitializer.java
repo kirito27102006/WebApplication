@@ -15,11 +15,13 @@ import org.example.jobsearchplatform.repository.UserRepository;
 import org.example.jobsearchplatform.repository.VacancyRepository;
 import org.example.jobsearchplatform.service.SkillService;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
+@Profile("dev")
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

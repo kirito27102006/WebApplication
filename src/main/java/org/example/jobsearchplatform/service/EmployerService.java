@@ -34,7 +34,7 @@ public class EmployerService {
         }
 
         Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + request.getCompanyId()));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + request.getCompanyId()));
 
         Employer employer = employerMapper.toEntity(request, company);
         Employer savedEmployer = employerRepository.save(employer);
@@ -49,7 +49,7 @@ public class EmployerService {
 
     public EmployerResponse findByEmail(String email) {
         Employer employer = employerRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Employer not found with email: " + email));
+                .orElseThrow(() -> new EntityNotFoundException("Employer not found with email: " + email));
         return employerMapper.toResponse(employer);
     }
 
@@ -70,7 +70,7 @@ public class EmployerService {
                 .orElseThrow(() -> new EntityNotFoundException(EMPLOYER_NOT_FOUND_ID + id));
 
         Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + request.getCompanyId()));
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + request.getCompanyId()));
 
         employer.setFirstName(request.getFirstName());
         employer.setLastName(request.getLastName());
