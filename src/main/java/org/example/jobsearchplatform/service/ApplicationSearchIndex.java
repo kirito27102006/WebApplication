@@ -1,20 +1,22 @@
 package org.example.jobsearchplatform.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.ApplicationResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class ApplicationSearchIndex {
     private final Map<ApplicationSearchCacheKey, Page<ApplicationResponse>> index = new HashMap<>();
 
     public synchronized Page<ApplicationResponse> get(ApplicationSearchCacheKey key) {
         Page<ApplicationResponse> value = index.get(key);
         if (value == null) {
-            System.out.println("[ApplicationSearchIndex] CACHE MISS for key: " + key);
+            log.debug("CACHE MISS for key: {}", key);
         } else {
-            System.out.println("[ApplicationSearchIndex] CACHE HIT for key: " + key);
+            log.debug("CACHE HIT for key: {}", key);
         }
         return value;
     }
@@ -22,15 +24,15 @@ public class ApplicationSearchIndex {
     public synchronized Page<ApplicationResponse> put(ApplicationSearchCacheKey key,
                                                       Page<ApplicationResponse> value) {
         if (index.containsKey(key)) {
-            System.out.println("[ApplicationSearchIndex] CACHE UPDATE for key: " + key);
+            log.debug("CACHE UPDATE for key: {}", key);
         } else {
-            System.out.println("[ApplicationSearchIndex] CACHE PUT for key: " + key);
+            log.debug("CACHE PUT for key: {}", key);
         }
         return index.put(key, value);
     }
 
     public synchronized void clear() {
-        System.out.println("[ApplicationSearchIndex] CACHE CLEAR");
+        log.debug("CACHE CLEAR");
         index.clear();
     }
 }
