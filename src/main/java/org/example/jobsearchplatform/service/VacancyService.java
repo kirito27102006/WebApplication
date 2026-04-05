@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.VacancyCreateRequest;
 import org.example.jobsearchplatform.dto.VacancyResponse;
-import org.example.jobsearchplatform.model.Vacancy;
 import org.example.jobsearchplatform.model.Employer;
+import org.example.jobsearchplatform.model.Vacancy;
 import org.example.jobsearchplatform.model.enums.VacancyStatus;
-import org.example.jobsearchplatform.repository.VacancyRepository;
-import org.example.jobsearchplatform.repository.EmployerRepository;
 import org.example.jobsearchplatform.repository.ApplicationRepository;
+import org.example.jobsearchplatform.repository.EmployerRepository;
+import org.example.jobsearchplatform.repository.VacancyRepository;
 import org.example.jobsearchplatform.service.mapper.VacancyMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,10 +34,7 @@ public class VacancyService {
     private final VacancyMapper vacancyMapper;
 
     public VacancyResponse createVacancy(VacancyCreateRequest request) {
-        Employer createdBy = employerRepository.findById(request.getCreatedById())
-                .orElseThrow(() -> new EntityNotFoundException("Employer n" +
-                        "ot found with id: " + request.getCreatedById()));
-
+        Employer createdBy = getEmployerById(request.getCreatedById());
         Vacancy vacancy = vacancyMapper.toEntity(request, createdBy);
         Vacancy savedVacancy = vacancyRepository.save(vacancy);
         return vacancyMapper.toResponse(savedVacancy);
@@ -73,15 +71,10 @@ public class VacancyService {
     }
 
     public VacancyResponse updateVacancy(Long id, VacancyCreateRequest request) {
-        Vacancy vacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
-
-        Employer createdBy = null;
-        if (request.getCreatedById() != null) {
-            createdBy = employerRepository.findById(request.getCreatedById())
-                    .orElseThrow(() -> new EntityNotFoundException("Employe" +
-                            "r not found with id: " + request.getCreatedById()));
-        }
+        Vacancy vacancy = getVacancyById(id);
+        Employer createdBy = Optional.ofNullable(request.getCreatedById())
+                .map(this::getEmployerById)
+                .orElse(null);
 
         vacancy.setTitle(request.getTitle());
         vacancy.setDescription(request.getDescription());
@@ -94,14 +87,11 @@ public class VacancyService {
     }
 
     public void closeVacancy(Long id) {
-        Vacancy vacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
-        vacancy.setStatus(VacancyStatus.CLOSED);
+        getVacancyById(id).setStatus(VacancyStatus.CLOSED);
     }
 
     public void deleteVacancy(Long id) {
-        Vacancy vacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
+        Vacancy vacancy = getVacancyById(id);
 
         if (applicationRepository.existsByVacancyId(id)) {
             throw new IllegalStateException("Cannot delete vacancy with existing applications");
@@ -112,26 +102,24 @@ public class VacancyService {
 
     @Transactional(readOnly = true)
     public Map<String, String> demonstrateNPlusOneProblem(Long id) {
-        log.info("========== ДЕМОНСТРАЦИЯ ПРОБЛЕМЫ N+1 ==========");
-        log.info("1. Запрос БЕЗ fetch join (вызов vacancyRepository.findById()):");
+        log.info("========== N+1 PROBLEM DEMO ==========");
+        log.info("1. Query without fetch join (vacancyRepository.findById())");
 
-        Vacancy badVacancy = vacancyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Vacancy not found"));
+        Vacancy badVacancy = getVacancyById(id);
 
-        log.info("   ✅ Загружена вакансия: {}", badVacancy.getTitle());
+        log.info("   Vacancy loaded: {}", badVacancy.getTitle());
 
         String companyName = badVacancy.getCreatedBy().getCompany().getName();
-        log.info("   🔄 Отдельный запрос к компании: {}", companyName);
+        log.info("   Separate query for company: {}", companyName);
 
         String creatorName = badVacancy.getCreatedBy().getFirstName();
-        log.info("   🔄 Отдельный запрос к создателю: {}", creatorName);
+        log.info("   Separate query for creator: {}", creatorName);
 
-        log.info("   📊 ИТОГО: 1 (вакансия) + N (связанные сущности) запросов к БД");
-        log.info("========== Демонстрация завершена ==========");
+        log.info("   Total: 1 vacancy query + N related entity queries");
+        log.info("========== Demo finished ==========");
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Демонстрация проблемы N+1 выполнена. Проверьте ло" +
-                "ги приложения и количество SQL-запросов.");
+        response.put("message", "N+1 problem demo completed. Check the application logs and SQL query count.");
         response.put("vacancyTitle", badVacancy.getTitle());
         response.put("companyName", companyName);
         response.put("creatorName", creatorName);
@@ -140,29 +128,38 @@ public class VacancyService {
 
     @Transactional(readOnly = true)
     public Map<String, String> demonstrateNPlusOneSolution(Long id) {
-        log.info("========== ДЕМОНСТРАЦИЯ РЕШЕНИЯ ПРОБЛЕМЫ N+1 ==========");
-        log.info("2. Запрос С FETCH JOIN (вызов vacancyRepository.findByIdWithJoins()):");
+        log.info("========== N+1 SOLUTION DEMO ==========");
+        log.info("2. Query with FETCH JOIN (vacancyRepository.findByIdWithJoins())");
 
         Vacancy goodVacancy = vacancyRepository.findByIdWithJoins(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vacancy not found"));
 
-        log.info("   ✅ Загружена вакансия: {}", goodVacancy.getTitle());
+        log.info("   Vacancy loaded: {}", goodVacancy.getTitle());
 
         String companyName = goodVacancy.getCreatedBy().getCompany().getName();
-        log.info("   ✅ Компания загружена через FETCH JOIN: {}", companyName);
+        log.info("   Company loaded via FETCH JOIN: {}", companyName);
 
         String creatorName = goodVacancy.getCreatedBy().getFirstName();
-        log.info("   ✅ Создатель загружен через FETCH JOIN: {}", creatorName);
+        log.info("   Creator loaded via FETCH JOIN: {}", creatorName);
 
-        log.info("   📊 ИТОГО: 1 запрос к БД (все данные получены за один раз)");
-        log.info("========== Демонстрация завершена ==========");
+        log.info("   Total: 1 database query");
+        log.info("========== Demo finished ==========");
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Демонстрация решения проблемы N+1 выполнена. Про" +
-                "верьте логи приложения и количество SQL-запросов.");
+        response.put("message", "N+1 solution demo completed. Check the application logs and SQL query count.");
         response.put("vacancyTitle", goodVacancy.getTitle());
         response.put("companyName", companyName);
         response.put("creatorName", creatorName);
         return response;
+    }
+
+    private Vacancy getVacancyById(Long id) {
+        return vacancyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(VACANCY_NOT_FOUND + id));
+    }
+
+    private Employer getEmployerById(Long id) {
+        return employerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Employer not found with id: " + id));
     }
 }

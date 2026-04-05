@@ -16,8 +16,10 @@ import org.example.jobsearchplatform.service.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,9 +45,7 @@ public class UserService {
     }
 
     public UserResponse findById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(getUserById(id));
     }
 
     public UserResponse findByEmail(String email) {
@@ -72,8 +72,7 @@ public class UserService {
     }
 
     public UserResponse updateUser(Long id, UserCreateRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
+        User user = getUserById(id);
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -84,30 +83,21 @@ public class UserService {
     }
 
     public void blockUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
-        user.setStatus(UserStatus.BLOCKED);
+        getUserById(id).setStatus(UserStatus.BLOCKED);
     }
 
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
-
+        User user = getUserById(id);
         List<Resume> userResumes = resumeRepository.findByUserId(id);
 
-        boolean hasApplications = userResumes.stream()
-                .anyMatch(resume -> applicationRepository.existsByResumeId(resume.getId()));
+        boolean hasApplications = userResumes.stream().anyMatch(hasApplications());
 
         if (hasApplications) {
-            log.info("User {} has applications – performing soft delete", id);
+            log.info("User {} has applications - performing soft delete", id);
             user.setStatus(UserStatus.DELETED);
-
-            for (Resume resume : userResumes) {
-                resume.setStatus(ResumeStatus.USER_DELETED);
-            }
-
+            userResumes.forEach(resume -> resume.setStatus(ResumeStatus.USER_DELETED));
         } else {
-            log.info("User {} has no applications – performing hard delete", id);
+            log.info("User {} has no applications - performing hard delete", id);
             user.getSkills().clear();
             resumeRepository.deleteAll(userResumes);
             userRepository.delete(user);
@@ -115,32 +105,30 @@ public class UserService {
     }
 
     public void hardDeleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
-
+        User user = getUserById(id);
         List<Resume> userResumes = resumeRepository.findByUserId(id);
 
-        List<Resume> toDelete = new ArrayList<>();
-        List<Resume> toKeep = new ArrayList<>();
+        Map<Boolean, List<Resume>> resumesByApplications = userResumes.stream()
+                .collect(Collectors.partitioningBy(hasApplications()));
 
-        for (Resume resume : userResumes) {
-            if (applicationRepository.existsByResumeId(resume.getId())) {
-                toKeep.add(resume);
-            } else {
-                toDelete.add(resume);
-            }
-        }
-
-        for (Resume resume : toKeep) {
+        resumesByApplications.getOrDefault(true, List.of()).forEach(resume -> {
             resume.setUser(null);
             resume.setStatus(ResumeStatus.USER_DELETED);
-        }
+        });
 
-        resumeRepository.deleteAll(toDelete);
+        resumeRepository.deleteAll(resumesByApplications.getOrDefault(false, List.of()));
 
         user.getSkills().clear();
         userRepository.save(user);
-
         userRepository.delete(user);
+    }
+
+    private User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND_ID + id));
+    }
+
+    private Predicate<Resume> hasApplications() {
+        return resume -> applicationRepository.existsByResumeId(resume.getId());
     }
 }

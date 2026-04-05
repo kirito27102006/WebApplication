@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +32,7 @@ public class CompanyService {
     }
 
     public CompanyResponse findById(Long id) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
-        return companyMapper.toResponse(company);
+        return companyMapper.toResponse(getCompanyById(id));
     }
 
     public CompanyResponse findByName(String name) {
@@ -61,10 +60,9 @@ public class CompanyService {
     }
 
     public CompanyResponse updateCompany(Long id, CompanyCreateRequest request) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
+        Company company = getCompanyById(id);
 
-        company.setName(request.getName());
+        Optional.ofNullable(request.getName()).ifPresent(company::setName);
         company.setDescription(request.getDescription());
         company.setIndustry(request.getIndustry());
         company.setLocation(request.getLocation());
@@ -78,5 +76,10 @@ public class CompanyService {
 
     public void deleteCompany(Long id) {
         companyRepository.deleteById(id);
+    }
+
+    private Company getCompanyById(Long id) {
+        return companyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
     }
 }

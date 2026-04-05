@@ -3,13 +3,15 @@ package org.example.jobsearchplatform.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.model.Skill;
-import org.example.jobsearchplatform.model.User;
 import org.example.jobsearchplatform.repository.SkillRepository;
 import org.example.jobsearchplatform.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -22,44 +24,47 @@ public class SkillService {
     @Transactional
     public void createSkills() {
         if (skillRepository.count() == 0) {
-            String[] skillNames = {"Java", "Spring", "Hibernate", "PostgreSQL", "React", "Docker", "Git"};
-            for (String name : skillNames) {
-                Skill skill = new Skill();
-                skill.setName(name);
-                skillRepository.save(skill);
-            }
-            log.info("=== Созданы навыки ===");
+            Arrays.stream(new String[]{"Java", "Spring", "Hibernate", "PostgreSQL", "React", "Docker", "Git"})
+                    .map(this::buildSkill)
+                    .forEach(skillRepository::save);
+            log.info("=== Skills created ===");
         }
     }
 
     @Transactional
     public void assignSkillsToUsers(String emailTwo) {
-        List<User> users = userRepository.findAll();
-        if (!users.isEmpty()) {
-            User ivan = userRepository.findByEmail(emailTwo).orElse(null);
-            User maria = userRepository.findByEmail("maria@example.com").orElse(null);
-
-            if (ivan != null && ivan.getSkills().isEmpty()) {
-                List<Skill> javaSkills = skillRepository.findAll().stream()
-                        .filter(s -> s.getName().equals("Java") || s.getName().equals("Spring") ||
-                                s.getName().equals("Hibernate") || s.getName().equals("PostgreSQL"))
-                        .toList();
-
-                ivan.getSkills().addAll(javaSkills);
-                userRepository.save(ivan);
-                log.info("=== Навыки назначены Ивану ===");
-            }
-
-            if (maria != null && maria.getSkills().isEmpty()) {
-                List<Skill> frontendSkills = skillRepository.findAll().stream()
-                        .filter(s -> s.getName().equals("React") || s.getName().equals("Git") ||
-                                s.getName().equals("Docker"))
-                        .toList();
-
-                maria.getSkills().addAll(frontendSkills);
-                userRepository.save(maria);
-                log.info("=== Навыки назначены Марии ===");
-            }
+        if (userRepository.count() == 0) {
+            return;
         }
+
+        List<Skill> skills = skillRepository.findAll();
+        assignSkillsIfNeeded(emailTwo, skills, Set.of("Java", "Spring", "Hibernate", "PostgreSQL"),
+                "=== Skills assigned to Ivan ===");
+        assignSkillsIfNeeded("maria@example.com", skills, Set.of("React", "Git", "Docker"),
+                "=== Skills assigned to Maria ===");
+    }
+
+    private Skill buildSkill(String name) {
+        Skill skill = new Skill();
+        skill.setName(name);
+        return skill;
+    }
+
+    private void assignSkillsIfNeeded(String email, List<Skill> skills, Set<String> skillNames, String logMessage) {
+        userRepository.findByEmail(email)
+                .filter(user -> user.getSkills().isEmpty())
+                .ifPresent(user -> {
+                    user.getSkills().addAll(filterSkillsByName(skills, skillNames));
+                    userRepository.save(user);
+                    log.info(logMessage);
+                });
+    }
+
+    private List<Skill> filterSkillsByName(List<Skill> skills, Set<String> skillNames) {
+        return skills.stream()
+                .filter(skill -> Optional.ofNullable(skill.getName())
+                        .map(skillNames::contains)
+                        .orElse(false))
+                .toList();
     }
 }

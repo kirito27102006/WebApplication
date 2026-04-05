@@ -44,6 +44,24 @@ public class ApplicationController {
         return applicationService.createApplication(request);
     }
 
+    @PostMapping("/bulk")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create applications in bulk")
+    public List<ApplicationResponse> createApplicationsBulk(
+            @RequestBody @Size(min = 1, max = 20, message = "Request must contain from 1 to 20 applications")
+            List<@Valid ApplicationCreateRequest> requests) {
+        return applicationService.createApplicationsBulk(requests);
+    }
+
+    @PostMapping("/bulk/demo/without-tx")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Demo: create applications in bulk without service transaction")
+    public List<ApplicationResponse> createApplicationsBulkWithoutTransaction(
+            @RequestBody @Size(min = 1, max = 20, message = "Request must contain from 1 to 20 applications")
+            List<@Valid ApplicationCreateRequest> requests) {
+        return applicationService.createApplicationsBulkWithoutTransaction(requests);
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get application by id")
     public ResponseEntity<ApplicationResponse> getApplicationById(@PathVariable @Positive Long id) {

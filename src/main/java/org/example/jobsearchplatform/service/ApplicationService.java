@@ -18,9 +18,13 @@ import org.example.jobsearchplatform.service.mapper.ApplicationMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +60,44 @@ public class ApplicationService {
     }
 
     public ApplicationResponse createApplication(ApplicationCreateRequest request) {
+        Application application = buildApplicationForCreate(request);
+        Application saved = applicationRepository.save(application);
+        applicationSearchIndex.clear();
+        return applicationMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public List<ApplicationResponse> createApplicationsBulk(List<ApplicationCreateRequest> requests) {
+        validateBulkRequest(requests);
+
+        List<Application> applicationsToSave = requests.stream()
+                .map(this::buildApplicationForCreate)
+                .toList();
+
+        List<ApplicationResponse> responses = applicationRepository.saveAll(applicationsToSave).stream()
+                .map(applicationMapper::toResponse)
+                .toList();
+        applicationSearchIndex.clear();
+        return responses;
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public List<ApplicationResponse> createApplicationsBulkWithoutTransaction(List<ApplicationCreateRequest> requests) {
+        validateBulkRequest(requests);
+        List<ApplicationResponse> responses = new ArrayList<>();
+        try {
+            for (ApplicationCreateRequest request : requests) {
+                Application application = buildApplicationForCreate(request);
+                Application saved = applicationRepository.saveAndFlush(application);
+                responses.add(applicationMapper.toResponse(saved));
+            }
+            return responses;
+        } finally {
+            applicationSearchIndex.clear();
+        }
+    }
+
+    private Application buildApplicationForCreate(ApplicationCreateRequest request) {
         Vacancy vacancy = vacancyRepository.findById(request.getVacancyId())
                 .orElseThrow(() -> new EntityNotFoundException("Vacancy not found with id: " + request.getVacancyId()));
 
@@ -84,9 +126,7 @@ public class ApplicationService {
         application.setCoverLetter(request.getCoverLetter());
         application.setStatus(ApplicationStatus.PENDING);
 
-        Application saved = applicationRepository.save(application);
-        applicationSearchIndex.clear();
-        return applicationMapper.toResponse(saved);
+        return application;
     }
 
     public ApplicationResponse findById(Long id) {
@@ -170,6 +210,25 @@ public class ApplicationService {
     public void deleteApplication(Long id) {
         applicationRepository.deleteById(id);
         applicationSearchIndex.clear();
+    }
+
+    private void validateBulkRequest(List<ApplicationCreateRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            throw new IllegalArgumentException("Bulk request must contain at least one item");
+        }
+
+        Set<String> uniqueApplications = new HashSet<>();
+        for (ApplicationCreateRequest request : requests) {
+            String uniqueKey = request.getUserId() + ":" + request.getVacancyId();
+            if (!uniqueApplications.add(uniqueKey)) {
+                throw new IllegalArgumentException(
+                        "Bulk request contains duplicate application for user "
+                                + request.getUserId()
+                                + " and vacancy "
+                                + request.getVacancyId()
+                );
+            }
+        }
     }
 
     private ApplicationStatus parseStatus(String status) {

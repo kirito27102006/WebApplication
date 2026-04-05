@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -39,9 +40,7 @@ public class ResumeService {
     }
 
     public ResumeResponse createResume(ResumeCreateRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
-
+        User user = getUserById(request.getUserId());
         Resume resume = resumeMapper.toEntity(request, user);
         Resume savedResume = resumeRepository.save(resume);
         return resumeMapper.toResponse(savedResume);
@@ -49,9 +48,7 @@ public class ResumeService {
 
     @Transactional(readOnly = true)
     public ResumeResponse findById(Long id) {
-        Resume resume = resumeRepository.findByIdWithUser(id)
-                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
-        return resumeMapper.toResponse(resume);
+        return resumeMapper.toResponse(getResumeByIdWithUser(id));
     }
 
     @Transactional(readOnly = true)
@@ -66,26 +63,13 @@ public class ResumeService {
 
     @Transactional(readOnly = true)
     public List<ResumeResponse> searchResumes(String skill, String location, Integer maxSalary) {
-        List<Resume> resumes;
-
-        if (skill != null && !skill.isEmpty()) {
-            resumes = resumeRepository.findBySkillWithUser(skill);
-        } else if (location != null && !location.isEmpty()) {
-            resumes = resumeRepository.findByLocationWithUser(location);
-        } else if (maxSalary != null) {
-            resumes = resumeRepository.findByMaxSalaryWithUser(maxSalary);
-        } else {
-            resumes = resumeRepository.findAllWithUser();
-        }
-
-        return resumes.stream()
+        return findResumesByFilters(skill, location, maxSalary).stream()
                 .map(resumeMapper::toResponse)
                 .toList();
     }
 
     public ResumeResponse updateResume(Long id, ResumeCreateRequest request) {
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
+        Resume resume = getResumeById(id);
 
         resume.setTitle(request.getTitle());
         resume.setSkills(request.getSkills());
@@ -99,19 +83,43 @@ public class ResumeService {
     }
 
     public void hideResume(Long id) {
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
-        resume.setStatus(ResumeStatus.HIDDEN);
+        getResumeById(id).setStatus(ResumeStatus.HIDDEN);
     }
 
     public void deleteResume(Long id) {
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
+        Resume resume = getResumeById(id);
 
         if (applicationRepository.existsByResumeId(id)) {
             throw new IllegalStateException("Cannot delete resume because it has associated applications");
         }
 
         resumeRepository.delete(resume);
+    }
+
+    private List<Resume> findResumesByFilters(String skill, String location, Integer maxSalary) {
+        return Optional.ofNullable(skill)
+                .filter(value -> !value.isBlank())
+                .map(resumeRepository::findBySkillWithUser)
+                .or(() -> Optional.ofNullable(location)
+                        .filter(value -> !value.isBlank())
+                        .map(resumeRepository::findByLocationWithUser))
+                .or(() -> Optional.ofNullable(maxSalary)
+                        .map(resumeRepository::findByMaxSalaryWithUser))
+                .orElseGet(resumeRepository::findAllWithUser);
+    }
+
+    private User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+    }
+
+    private Resume getResumeById(Long id) {
+        return resumeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
+    }
+
+    private Resume getResumeByIdWithUser(Long id) {
+        return resumeRepository.findByIdWithUser(id)
+                .orElseThrow(() -> new EntityNotFoundException(RESUME_NOT_FOUND + id));
     }
 }
