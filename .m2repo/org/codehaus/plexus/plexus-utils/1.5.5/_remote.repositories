@@ -1,4 +1,4 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
 #Sun Apr 05 18:57:47 MSK 2026
-plexus-cipher-1.4.jar>central=
-plexus-cipher-1.4.pom>central=
+plexus-utils-1.5.5.jar>central=
+plexus-utils-1.5.5.pom>central=
