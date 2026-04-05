@@ -95,10 +95,11 @@ class ApplicationServiceTest {
     void createApplicationsBulk_duplicateRequest_throws() {
         ApplicationCreateRequest first = buildRequest(1L, 2L, 3L, "A");
         ApplicationCreateRequest second = buildRequest(1L, 2L, 4L, "B");
+        List<ApplicationCreateRequest> requests = List.of(first, second);
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> applicationService.createApplicationsBulk(List.of(first, second))
+                () -> applicationService.createApplicationsBulk(requests)
         );
 
         assertEquals(
@@ -112,6 +113,7 @@ class ApplicationServiceTest {
     void createApplicationsBulkWithoutTransaction_secondFails_firstWasPersisted() {
         ApplicationCreateRequest first = buildRequest(10L, 20L, 30L, "ok");
         ApplicationCreateRequest second = buildRequest(10L, 999L, 30L, "bad");
+        List<ApplicationCreateRequest> requests = List.of(first, second);
 
         Vacancy validVacancy = buildVacancy(20L, VacancyStatus.ACTIVE);
         Resume resume = buildResumeWithUser(30L, 10L);
@@ -126,7 +128,7 @@ class ApplicationServiceTest {
 
         assertThrows(
                 EntityNotFoundException.class,
-                () -> applicationService.createApplicationsBulkWithoutTransaction(List.of(first, second))
+                () -> applicationService.createApplicationsBulkWithoutTransaction(requests)
         );
 
         verify(applicationRepository).saveAndFlush(any(Application.class));
