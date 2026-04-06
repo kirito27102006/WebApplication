@@ -117,7 +117,6 @@ public class DataInitializer implements CommandLineRunner {
                 vacancyRepository.save(vac2);
             }
         }
-
         if (resumeRepository.count() == 0) {
             User ivan = userRepository.findByEmail(EMAILTWO).orElse(null);
             if (ivan != null) {
