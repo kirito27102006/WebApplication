@@ -143,6 +143,29 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void createApplicationsBulkWithoutTransaction_success() {
+        ApplicationCreateRequest request = buildRequest(10L, 20L, 30L, "ok");
+        Vacancy vacancy = buildVacancy(20L, VacancyStatus.ACTIVE);
+        Resume resume = buildResumeWithUser(30L, 10L);
+        Application saved = new Application();
+        saved.setId(501L);
+        saved.setStatus(ApplicationStatus.PENDING);
+        saved.setVacancy(vacancy);
+        saved.setResume(resume);
+        saved.setCoverLetter("ok");
+
+        when(vacancyRepository.findById(20L)).thenReturn(Optional.of(vacancy));
+        when(resumeRepository.findByIdWithUser(30L)).thenReturn(Optional.of(resume));
+        when(applicationRepository.existsByUserIdAndVacancyId(10L, 20L)).thenReturn(false);
+        when(applicationRepository.saveAndFlush(any(Application.class))).thenReturn(saved);
+
+        List<ApplicationResponse> responses = applicationService.createApplicationsBulkWithoutTransaction(List.of(request));
+
+        assertEquals(1, responses.size());
+        assertEquals(501L, responses.get(0).getId());
+    }
+
+    @Test
     void findByUser_userMissing_throws() {
         when(userRepository.existsById(777L)).thenReturn(false);
 
@@ -419,6 +442,20 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void findById_success() {
+        Application application = new Application();
+        application.setId(88L);
+        application.setStatus(ApplicationStatus.PENDING);
+        application.setVacancy(buildVacancy(20L, VacancyStatus.ACTIVE));
+        application.setResume(buildResumeWithUser(30L, 10L));
+        when(applicationRepository.findById(88L)).thenReturn(Optional.of(application));
+
+        ApplicationResponse response = applicationService.findById(88L);
+
+        assertEquals(88L, response.getId());
+    }
+
+    @Test
     void findByUser_success() {
         Application application = new Application();
         application.setId(1L);
@@ -499,6 +536,50 @@ class ApplicationServiceTest {
         );
 
         assertEquals("Cannot cancel application because the associated user no longer exists", ex.getMessage());
+    }
+
+    @Test
+    void cancelApplication_notFound_throws() {
+        when(applicationRepository.findById(999L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> applicationService.cancelApplication(999L, 10L)
+        );
+
+        assertEquals("Application not found with id: 999", ex.getMessage());
+    }
+
+    @Test
+    void createApplicationsBulk_nullRequests_throws() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> applicationService.createApplicationsBulk(null)
+        );
+
+        assertEquals("Bulk request must contain at least one item", ex.getMessage());
+    }
+
+    @Test
+    void searchByFiltersNative_withNullFilters_passesNullsToRepository() {
+        when(applicationRepository.searchByFiltersNative(1L, null, null, null))
+                .thenReturn(List.of());
+
+        List<ApplicationResponse> responses = applicationService.searchByFiltersNative(1L, null, null, null);
+
+        assertEquals(0, responses.size());
+        verify(applicationRepository).searchByFiltersNative(1L, null, null, null);
+    }
+
+    @Test
+    void searchByFiltersJpql_withNullFilters_passesEmptyStringsForTextFilters() {
+        when(applicationRepository.searchByFiltersJpql(1L, null, "", ""))
+                .thenReturn(List.of());
+
+        List<ApplicationResponse> responses = applicationService.searchByFiltersJpql(1L, null, null, null);
+
+        assertEquals(0, responses.size());
+        verify(applicationRepository).searchByFiltersJpql(1L, null, "", "");
     }
 
     private static ApplicationCreateRequest buildRequest(Long userId, Long vacancyId, Long resumeId, String coverLetter) {
