@@ -32,13 +32,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -211,9 +207,11 @@ class ApplicationServiceTest {
 
     @Test
     void createApplicationsBulk_empty_throws() {
+        List<ApplicationCreateRequest> requests = List.of();
+
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> applicationService.createApplicationsBulk(List.of())
+                () -> applicationService.createApplicationsBulk(requests)
         );
         assertEquals("Bulk request must contain at least one item", ex.getMessage());
     }
@@ -271,7 +269,7 @@ class ApplicationServiceTest {
         Application application = new Application();
         application.setId(1L);
         application.setStatus(ApplicationStatus.PENDING);
-        when(applicationRepository.searchByFiltersJpql(eq(10L), eq(null), eq(""), eq("resume")))
+        when(applicationRepository.searchByFiltersJpql(10L, null, "", "resume"))
                 .thenReturn(List.of(application));
 
         List<ApplicationResponse> responses = applicationService.searchByFiltersJpql(10L, "  ", null, " resume ");
