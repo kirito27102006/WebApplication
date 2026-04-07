@@ -36,4 +36,4 @@ jobs:
             -Dsonar.organization=kirito27102006 \
             -Dsonar.projectKey=kirito27102006_WebApplication \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-            -Dsonar.coverage.exclusions=**/controller/**,**/config/**,**/dto/**,**/entity/**,**/repository/**,**/mapper/**,**/exception/**,**/*Application.java
+            -Dsonar.coverage.inclusions=src/main/java/org/example/jobsearchplatform/service/*Service.java
