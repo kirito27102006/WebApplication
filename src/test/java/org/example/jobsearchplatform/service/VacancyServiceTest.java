@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -124,5 +126,129 @@ class VacancyServiceTest {
         );
 
         assertEquals("Vacancy not found with id: 123", ex.getMessage());
+    }
+
+    @Test
+    void findAll_mapsList() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(1L);
+        vacancy.setTitle("Java");
+        Employer employer = new Employer();
+        employer.setId(2L);
+        employer.setCompany(new Company());
+        vacancy.setCreatedBy(employer);
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+        when(vacancyRepository.findAllWithJoins()).thenReturn(List.of(vacancy));
+
+        List<VacancyResponse> responses = vacancyService.findAll();
+
+        assertEquals(1, responses.size());
+        assertEquals(1L, responses.get(0).getId());
+    }
+
+    @Test
+    void searchVacancies_mapsList() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(10L);
+        vacancy.setTitle("Backend");
+        Employer employer = new Employer();
+        employer.setId(3L);
+        employer.setCompany(new Company());
+        vacancy.setCreatedBy(employer);
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+        when(vacancyRepository.searchVacanciesWithJoins("Back", "Minsk", 1000, 2))
+                .thenReturn(List.of(vacancy));
+
+        List<VacancyResponse> responses = vacancyService.searchVacancies("Back", "Minsk", 1000, 2);
+
+        assertEquals(1, responses.size());
+        assertEquals(10L, responses.get(0).getId());
+    }
+
+    @Test
+    void findByCompany_mapsList() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(11L);
+        vacancy.setTitle("QA");
+        Employer employer = new Employer();
+        employer.setId(3L);
+        employer.setCompany(new Company());
+        vacancy.setCreatedBy(employer);
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+        when(vacancyRepository.findByCompanyIdWithJoins(9L)).thenReturn(List.of(vacancy));
+
+        List<VacancyResponse> responses = vacancyService.findByCompany(9L);
+
+        assertEquals(1, responses.size());
+        assertEquals(11L, responses.get(0).getId());
+    }
+
+    @Test
+    void updateVacancy_withNullCreatedBy_keepsNullCreator() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(20L);
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+        VacancyCreateRequest request = new VacancyCreateRequest();
+        request.setTitle("Updated");
+        request.setDescription("Desc");
+        request.setSalary(2000);
+        request.setRequiredExperience(2);
+        request.setLocation("Remote");
+        request.setCreatedById(null);
+
+        when(vacancyRepository.findById(20L)).thenReturn(Optional.of(vacancy));
+
+        VacancyResponse response = vacancyService.updateVacancy(20L, request);
+
+        assertEquals("Updated", vacancy.getTitle());
+        assertEquals(null, vacancy.getCreatedBy());
+        assertEquals(20L, response.getId());
+    }
+
+    @Test
+    void deleteVacancy_withoutApplications_deletes() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(13L);
+        when(vacancyRepository.findById(13L)).thenReturn(Optional.of(vacancy));
+        when(applicationRepository.existsByVacancyId(13L)).thenReturn(false);
+
+        vacancyService.deleteVacancy(13L);
+
+        verify(vacancyRepository).delete(vacancy);
+    }
+
+    @Test
+    void demonstrateNPlusOneProblem_returnsFields() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(33L);
+        vacancy.setTitle("Title");
+
+        Company company = new Company();
+        company.setName("Comp");
+
+        Employer employer = new Employer();
+        employer.setFirstName("Ann");
+        employer.setCompany(company);
+        vacancy.setCreatedBy(employer);
+
+        when(vacancyRepository.findById(33L)).thenReturn(Optional.of(vacancy));
+
+        Map<String, String> result = vacancyService.demonstrateNPlusOneProblem(33L);
+
+        assertEquals("Title", result.get("vacancyTitle"));
+        assertEquals("Comp", result.get("companyName"));
+        assertEquals("Ann", result.get("creatorName"));
+    }
+
+    @Test
+    void demonstrateNPlusOneSolution_notFound_throws() {
+        when(vacancyRepository.findByIdWithJoins(34L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> vacancyService.demonstrateNPlusOneSolution(34L)
+        );
+
+        assertEquals("Vacancy not found", ex.getMessage());
     }
 }

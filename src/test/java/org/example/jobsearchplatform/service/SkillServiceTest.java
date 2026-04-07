@@ -77,4 +77,52 @@ class SkillServiceTest {
         assertEquals(2, ivan.getSkills().size());
         verify(userRepository, times(1)).save(ivan);
     }
+
+    @Test
+    void createSkills_whenRepositoryNotEmpty_doesNothing() {
+        when(skillRepository.count()).thenReturn(5L);
+
+        skillService.createSkills();
+
+        verify(skillRepository, never()).save(any(Skill.class));
+    }
+
+    @Test
+    void assignSkillsToUsers_userAlreadyHasSkills_doesNotSaveAgain() {
+        User ivan = new User();
+        ivan.setEmail("ivan@example.com");
+        ivan.setSkills(new java.util.ArrayList<>(List.of(new Skill())));
+        when(userRepository.count()).thenReturn(1L);
+        when(skillRepository.findAll()).thenReturn(List.of());
+        when(userRepository.findByEmail("ivan@example.com")).thenReturn(Optional.of(ivan));
+        when(userRepository.findByEmail("maria@example.com")).thenReturn(Optional.empty());
+
+        skillService.assignSkillsToUsers("ivan@example.com");
+
+        verify(userRepository, never()).save(ivan);
+    }
+
+    @Test
+    void assignSkillsToUsers_assignsMariaSkills() {
+        User maria = new User();
+        maria.setEmail("maria@example.com");
+        maria.setSkills(new java.util.ArrayList<>());
+
+        Skill react = new Skill();
+        react.setName("React");
+        Skill docker = new Skill();
+        docker.setName("Docker");
+        Skill java = new Skill();
+        java.setName("Java");
+
+        when(userRepository.count()).thenReturn(2L);
+        when(skillRepository.findAll()).thenReturn(List.of(react, docker, java));
+        when(userRepository.findByEmail("ivan@example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("maria@example.com")).thenReturn(Optional.of(maria));
+
+        skillService.assignSkillsToUsers("ivan@example.com");
+
+        assertEquals(2, maria.getSkills().size());
+        verify(userRepository).save(maria);
+    }
 }

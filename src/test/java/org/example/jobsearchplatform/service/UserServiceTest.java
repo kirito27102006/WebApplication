@@ -2,6 +2,7 @@ package org.example.jobsearchplatform.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.example.jobsearchplatform.dto.UserCreateRequest;
+import org.example.jobsearchplatform.dto.UserResponse;
 import org.example.jobsearchplatform.model.Resume;
 import org.example.jobsearchplatform.model.Skill;
 import org.example.jobsearchplatform.model.User;
@@ -116,5 +117,104 @@ class UserServiceTest {
         );
 
         assertEquals("User not found with email: none@example.com", ex.getMessage());
+    }
+
+    @Test
+    void findById_notFound_throws() {
+        when(userRepository.findById(100L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.findById(100L)
+        );
+
+        assertEquals("User not found with id: 100", ex.getMessage());
+    }
+
+    @Test
+    void findAll_mapsList() {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("a@a.com");
+        user.setStatus(UserStatus.ACTIVE);
+        user.setResumes(new ArrayList<>());
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        List<UserResponse> responses = userService.findAll();
+
+        assertEquals(1, responses.size());
+        assertEquals(1L, responses.get(0).getId());
+    }
+
+    @Test
+    void findByStatus_invalid_throws() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.findByStatus("wrong")
+        );
+
+        assertEquals("Invalid status value: wrong", ex.getMessage());
+    }
+
+    @Test
+    void updateUser_updatesFields() {
+        User existing = new User();
+        existing.setId(4L);
+        existing.setStatus(UserStatus.ACTIVE);
+        existing.setResumes(new ArrayList<>());
+        UserCreateRequest request = new UserCreateRequest();
+        request.setFirstName("New");
+        request.setLastName("Name");
+        request.setPhoneNumber("+123");
+        when(userRepository.findById(4L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(existing)).thenReturn(existing);
+
+        UserResponse response = userService.updateUser(4L, request);
+
+        assertEquals("New", existing.getFirstName());
+        assertEquals(4L, response.getId());
+    }
+
+    @Test
+    void blockUser_setsBlockedStatus() {
+        User user = new User();
+        user.setId(8L);
+        user.setStatus(UserStatus.ACTIVE);
+        when(userRepository.findById(8L)).thenReturn(Optional.of(user));
+
+        userService.blockUser(8L);
+
+        assertEquals(UserStatus.BLOCKED, user.getStatus());
+    }
+
+    @Test
+    void hardDeleteUser_handlesResumesWithAndWithoutApplications() {
+        User user = new User();
+        user.setId(9L);
+        user.setSkills(new ArrayList<>(List.of(new Skill())));
+
+        Resume withApps = new Resume();
+        withApps.setId(100L);
+        withApps.setStatus(ResumeStatus.ACTIVE);
+        withApps.setUser(user);
+
+        Resume withoutApps = new Resume();
+        withoutApps.setId(101L);
+        withoutApps.setStatus(ResumeStatus.ACTIVE);
+        withoutApps.setUser(user);
+
+        when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+        when(resumeRepository.findByUserId(9L)).thenReturn(List.of(withApps, withoutApps));
+        when(applicationRepository.existsByResumeId(100L)).thenReturn(true);
+        when(applicationRepository.existsByResumeId(101L)).thenReturn(false);
+
+        userService.hardDeleteUser(9L);
+
+        assertEquals(ResumeStatus.USER_DELETED, withApps.getStatus());
+        assertEquals(0, user.getSkills().size());
+        assertEquals(null, withApps.getUser());
+        verify(resumeRepository).deleteAll(List.of(withoutApps));
+        verify(userRepository).save(user);
+        verify(userRepository).delete(user);
     }
 }

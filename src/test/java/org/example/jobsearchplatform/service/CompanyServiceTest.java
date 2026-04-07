@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -112,5 +113,84 @@ class CompanyServiceTest {
         assertEquals("https://example.com", existing.getWebsite());
         assertEquals("info@example.com", existing.getContactEmail());
         assertEquals("+375291112233", existing.getContactPhone());
+    }
+
+    @Test
+    void findById_notFound_throws() {
+        when(companyRepository.findById(99L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> companyService.findById(99L)
+        );
+
+        assertEquals("Company not found with id: 99", ex.getMessage());
+    }
+
+    @Test
+    void findAll_mapsList() {
+        Company first = new Company();
+        first.setId(1L);
+        first.setName("A");
+        Company second = new Company();
+        second.setId(2L);
+        second.setName("B");
+        when(companyRepository.findAll()).thenReturn(List.of(first, second));
+
+        List<CompanyResponse> actual = companyService.findAll();
+
+        assertEquals(2, actual.size());
+        assertEquals("A", actual.get(0).getName());
+    }
+
+    @Test
+    void findByIndustry_mapsList() {
+        Company company = new Company();
+        company.setId(1L);
+        company.setName("Tech");
+        when(companyRepository.findByIndustry("IT")).thenReturn(List.of(company));
+
+        List<CompanyResponse> actual = companyService.findByIndustry("IT");
+
+        assertEquals(1, actual.size());
+        assertEquals("Tech", actual.get(0).getName());
+    }
+
+    @Test
+    void searchByName_mapsList() {
+        Company company = new Company();
+        company.setId(1L);
+        company.setName("Global Tech");
+        when(companyRepository.searchByName("Tech")).thenReturn(List.of(company));
+
+        List<CompanyResponse> actual = companyService.searchByName("Tech");
+
+        assertEquals(1, actual.size());
+        assertEquals("Global Tech", actual.get(0).getName());
+    }
+
+    @Test
+    void updateCompany_whenNameNull_keepsOldName() {
+        Company existing = new Company();
+        existing.setId(2L);
+        existing.setName("OldName");
+
+        CompanyCreateRequest request = new CompanyCreateRequest();
+        request.setName(null);
+        request.setDescription("Desc");
+
+        when(companyRepository.findById(2L)).thenReturn(Optional.of(existing));
+        when(companyRepository.save(existing)).thenReturn(existing);
+
+        CompanyResponse response = companyService.updateCompany(2L, request);
+
+        assertEquals("OldName", response.getName());
+        assertEquals("OldName", existing.getName());
+    }
+
+    @Test
+    void deleteCompany_callsRepository() {
+        companyService.deleteCompany(7L);
+        verify(companyRepository).deleteById(7L);
     }
 }

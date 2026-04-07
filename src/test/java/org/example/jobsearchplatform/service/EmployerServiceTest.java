@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -124,5 +125,103 @@ class EmployerServiceTest {
         );
 
         assertEquals("Employer not found with email: none@example.com", ex.getMessage());
+    }
+
+    @Test
+    void findById_notFound_throws() {
+        when(employerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> employerService.findById(1L)
+        );
+
+        assertEquals("Employer not found with id: 1", ex.getMessage());
+    }
+
+    @Test
+    void findAll_mapsList() {
+        Employer employer = new Employer();
+        employer.setId(3L);
+        employer.setFirstName("Anna");
+        employer.setStatus(EmployerStatus.ACTIVE);
+        employer.setCompany(new Company());
+        when(employerRepository.findAll()).thenReturn(List.of(employer));
+
+        List<EmployerResponse> actual = employerService.findAll();
+
+        assertEquals(1, actual.size());
+        assertEquals(3L, actual.get(0).getId());
+    }
+
+    @Test
+    void findByCompany_mapsList() {
+        Employer employer = new Employer();
+        employer.setId(4L);
+        employer.setFirstName("Kate");
+        employer.setStatus(EmployerStatus.ACTIVE);
+        employer.setCompany(new Company());
+        when(employerRepository.findByCompanyId(10L)).thenReturn(List.of(employer));
+
+        List<EmployerResponse> actual = employerService.findByCompany(10L);
+
+        assertEquals(1, actual.size());
+        assertEquals(4L, actual.get(0).getId());
+    }
+
+    @Test
+    void updateEmployer_updatesAndSaves() {
+        Employer existing = new Employer();
+        existing.setId(9L);
+        existing.setStatus(EmployerStatus.ACTIVE);
+        existing.setCreatedVacancies(new java.util.ArrayList<>());
+        Company oldCompany = new Company();
+        oldCompany.setId(1L);
+        oldCompany.setName("Old");
+        existing.setCompany(oldCompany);
+
+        Company newCompany = new Company();
+        newCompany.setId(2L);
+        newCompany.setName("NewCo");
+
+        EmployerCreateRequest request = new EmployerCreateRequest();
+        request.setFirstName("New");
+        request.setLastName("Name");
+        request.setPhoneNumber("+123");
+        request.setCompanyId(2L);
+
+        when(employerRepository.findById(9L)).thenReturn(Optional.of(existing));
+        when(companyRepository.findById(2L)).thenReturn(Optional.of(newCompany));
+        when(employerRepository.save(existing)).thenReturn(existing);
+
+        EmployerResponse response = employerService.updateEmployer(9L, request);
+
+        assertEquals("New", existing.getFirstName());
+        assertEquals(2L, existing.getCompany().getId());
+        assertEquals(9L, response.getId());
+    }
+
+    @Test
+    void blockEmployer_setsBlockedStatus() {
+        Employer employer = new Employer();
+        employer.setId(5L);
+        employer.setStatus(EmployerStatus.ACTIVE);
+        when(employerRepository.findById(5L)).thenReturn(Optional.of(employer));
+
+        employerService.blockEmployer(5L);
+
+        assertEquals(EmployerStatus.BLOCKED, employer.getStatus());
+    }
+
+    @Test
+    void deleteEmployer_withoutVacancies_deletes() {
+        Employer employer = new Employer();
+        employer.setId(12L);
+        when(employerRepository.findById(12L)).thenReturn(Optional.of(employer));
+        when(vacancyRepository.existsByCreatedById(12L)).thenReturn(false);
+
+        employerService.deleteEmployer(12L);
+
+        verify(employerRepository).delete(employer);
     }
 }

@@ -76,4 +76,42 @@ class DemoServiceTest {
         verify(employerRepository).save(any());
         verify(employerRepository).flush();
     }
+
+    @Test
+    void saveWithTransaction_invalidEmail_throwsAfterCompanySave() {
+        DemoRequest request = new DemoRequest();
+        request.setCompanyName("CompanyTx");
+        request.setEmployerEmail("invalid-email");
+        request.setEmployerFirstName("Demo");
+        request.setEmployerLastName("User");
+
+        when(companyRepository.existsByName(anyString())).thenReturn(false);
+        when(companyRepository.save(any(Company.class))).thenAnswer(invocation -> {
+            Company saved = invocation.getArgument(0);
+            saved.setId(3L);
+            return saved;
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> demoService.saveWithTransaction(request));
+
+        verify(companyRepository).save(any(Company.class));
+        verify(companyRepository).flush();
+        verify(employerRepository, never()).save(any());
+    }
+
+    @Test
+    void saveWithoutTransaction_companyAlreadyExists_throws() {
+        DemoRequest request = new DemoRequest();
+        request.setCompanyName("Duplicate");
+        request.setEmployerEmail("demo.user@example.com");
+        request.setEmployerFirstName("Demo");
+        request.setEmployerLastName("User");
+
+        when(companyRepository.existsByName(anyString())).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> demoService.saveWithoutTransaction(request));
+
+        verify(companyRepository, never()).save(any());
+        verify(employerRepository, never()).save(any());
+    }
 }
