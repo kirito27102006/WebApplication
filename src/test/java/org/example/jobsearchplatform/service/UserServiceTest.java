@@ -120,6 +120,70 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_success() {
+        UserCreateRequest request = new UserCreateRequest();
+        request.setFirstName("Ivan");
+        request.setLastName("Petrov");
+        request.setEmail("ivan@example.com");
+        request.setPhoneNumber("+375291112233");
+
+        User saved = new User();
+        saved.setId(11L);
+        saved.setFirstName("Ivan");
+        saved.setLastName("Petrov");
+        saved.setEmail("ivan@example.com");
+        saved.setPhoneNumber("+375291112233");
+        saved.setStatus(UserStatus.ACTIVE);
+        saved.setResumes(new ArrayList<>());
+        saved.setSkills(new ArrayList<>());
+
+        when(userRepository.existsByEmail("ivan@example.com")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(saved);
+
+        UserResponse response = userService.createUser(request);
+
+        assertEquals(11L, response.getId());
+        assertEquals("Ivan", response.getFirstName());
+        assertEquals("ACTIVE", response.getStatus());
+    }
+
+    @Test
+    void findById_success() {
+        User user = new User();
+        user.setId(12L);
+        user.setFirstName("Anna");
+        user.setLastName("Smith");
+        user.setEmail("anna@example.com");
+        user.setStatus(UserStatus.ACTIVE);
+        user.setResumes(new ArrayList<>());
+        user.setSkills(new ArrayList<>());
+        when(userRepository.findById(12L)).thenReturn(Optional.of(user));
+
+        UserResponse response = userService.findById(12L);
+
+        assertEquals(12L, response.getId());
+        assertEquals("Anna", response.getFirstName());
+    }
+
+    @Test
+    void findByEmail_success() {
+        User user = new User();
+        user.setId(13L);
+        user.setFirstName("Max");
+        user.setLastName("Payne");
+        user.setEmail("max@example.com");
+        user.setStatus(UserStatus.ACTIVE);
+        user.setResumes(new ArrayList<>());
+        user.setSkills(new ArrayList<>());
+        when(userRepository.findByEmail("max@example.com")).thenReturn(Optional.of(user));
+
+        UserResponse response = userService.findByEmail("max@example.com");
+
+        assertEquals(13L, response.getId());
+        assertEquals("max@example.com", response.getEmail());
+    }
+
+    @Test
     void findById_notFound_throws() {
         when(userRepository.findById(100L)).thenReturn(Optional.empty());
 
