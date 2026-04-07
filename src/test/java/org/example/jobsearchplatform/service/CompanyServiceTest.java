@@ -193,4 +193,17 @@ class CompanyServiceTest {
         companyService.deleteCompany(7L);
         verify(companyRepository).deleteById(7L);
     }
+
+    @Test
+    void findByName_success() {
+        Company company = new Company();
+        company.setId(3L);
+        company.setName("Name");
+        when(companyRepository.findByName("Name")).thenReturn(Optional.of(company));
+
+        CompanyResponse response = companyService.findByName("Name");
+
+        assertEquals(3L, response.getId());
+        assertEquals("Name", response.getName());
+    }
 }

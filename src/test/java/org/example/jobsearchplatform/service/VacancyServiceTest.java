@@ -251,4 +251,53 @@ class VacancyServiceTest {
 
         assertEquals("Vacancy not found", ex.getMessage());
     }
+
+    @Test
+    void demonstrateNPlusOneSolution_success() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(35L);
+        vacancy.setTitle("Java");
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+
+        Company company = new Company();
+        company.setName("Tech");
+
+        Employer employer = new Employer();
+        employer.setFirstName("John");
+        employer.setCompany(company);
+        vacancy.setCreatedBy(employer);
+
+        when(vacancyRepository.findByIdWithJoins(35L)).thenReturn(Optional.of(vacancy));
+
+        Map<String, String> result = vacancyService.demonstrateNPlusOneSolution(35L);
+
+        assertEquals("Java", result.get("vacancyTitle"));
+        assertEquals("Tech", result.get("companyName"));
+        assertEquals("John", result.get("creatorName"));
+    }
+
+    @Test
+    void updateVacancy_withCreatorId_updatesCreator() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(40L);
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+
+        Employer creator = new Employer();
+        creator.setId(5L);
+        creator.setFirstName("A");
+        creator.setLastName("B");
+        creator.setCompany(new Company());
+
+        VacancyCreateRequest request = new VacancyCreateRequest();
+        request.setCreatedById(5L);
+        request.setTitle("Title");
+
+        when(vacancyRepository.findById(40L)).thenReturn(Optional.of(vacancy));
+        when(employerRepository.findById(5L)).thenReturn(Optional.of(creator));
+
+        VacancyResponse response = vacancyService.updateVacancy(40L, request);
+
+        assertEquals(5L, vacancy.getCreatedBy().getId());
+        assertEquals(40L, response.getId());
+    }
 }

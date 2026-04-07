@@ -157,6 +157,20 @@ class UserServiceTest {
     }
 
     @Test
+    void findByStatus_valid_returnsUsers() {
+        User user = new User();
+        user.setId(1L);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setResumes(new ArrayList<>());
+        when(userRepository.findByStatus(UserStatus.ACTIVE)).thenReturn(List.of(user));
+
+        List<UserResponse> result = userService.findByStatus("active");
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
+    }
+
+    @Test
     void updateUser_updatesFields() {
         User existing = new User();
         existing.setId(4L);

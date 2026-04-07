@@ -224,4 +224,25 @@ class EmployerServiceTest {
 
         verify(employerRepository).delete(employer);
     }
+
+    @Test
+    void findByEmail_success() {
+        Company company = new Company();
+        company.setId(10L);
+        company.setName("Tech");
+
+        Employer employer = new Employer();
+        employer.setId(1L);
+        employer.setEmail("ok@example.com");
+        employer.setStatus(EmployerStatus.ACTIVE);
+        employer.setCompany(company);
+        employer.setCreatedVacancies(new java.util.ArrayList<>());
+
+        when(employerRepository.findByEmail("ok@example.com")).thenReturn(Optional.of(employer));
+
+        EmployerResponse response = employerService.findByEmail("ok@example.com");
+
+        assertEquals(1L, response.getId());
+        assertEquals("ACTIVE", response.getStatus());
+    }
 }

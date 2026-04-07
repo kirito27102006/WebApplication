@@ -264,4 +264,37 @@ class ResumeServiceTest {
 
         verify(resumeRepository).delete(resume);
     }
+
+    @Test
+    void createResume_userNotFound_throws() {
+        ResumeCreateRequest request = new ResumeCreateRequest();
+        request.setUserId(999L);
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> resumeService.createResume(request)
+        );
+
+        assertEquals("User not found with id: 999", ex.getMessage());
+    }
+
+    @Test
+    void findByUser_success() {
+        Resume resume = new Resume();
+        resume.setId(50L);
+        resume.setStatus(ResumeStatus.ACTIVE);
+        User user = new User();
+        user.setId(7L);
+        user.setFirstName("Ivan");
+        user.setLastName("Petrov");
+        resume.setUser(user);
+        when(userRepository.existsById(7L)).thenReturn(true);
+        when(resumeRepository.findByUserIdWithUser(7L)).thenReturn(List.of(resume));
+
+        List<ResumeResponse> responses = resumeService.findByUser(7L);
+
+        assertEquals(1, responses.size());
+        assertEquals(50L, responses.get(0).getId());
+    }
 }

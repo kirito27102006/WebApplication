@@ -348,6 +348,161 @@ class ApplicationServiceTest {
         verify(applicationRepository).deleteById(123L);
     }
 
+    @Test
+    void createApplication_vacancyNotFound_throws() {
+        ApplicationCreateRequest request = buildRequest(1L, 2L, 3L, "text");
+        when(vacancyRepository.findById(2L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> applicationService.createApplication(request)
+        );
+
+        assertEquals("Vacancy not found with id: 2", ex.getMessage());
+    }
+
+    @Test
+    void createApplication_vacancyNotActive_throws() {
+        ApplicationCreateRequest request = buildRequest(1L, 2L, 3L, "text");
+        Vacancy vacancy = buildVacancy(2L, VacancyStatus.CLOSED);
+        when(vacancyRepository.findById(2L)).thenReturn(Optional.of(vacancy));
+
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> applicationService.createApplication(request)
+        );
+
+        assertEquals("Cannot apply to a vacancy that is not ACTIVE", ex.getMessage());
+    }
+
+    @Test
+    void createApplication_resumeNotFound_throws() {
+        ApplicationCreateRequest request = buildRequest(1L, 2L, 3L, "text");
+        Vacancy vacancy = buildVacancy(2L, VacancyStatus.ACTIVE);
+        when(vacancyRepository.findById(2L)).thenReturn(Optional.of(vacancy));
+        when(resumeRepository.findByIdWithUser(3L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> applicationService.createApplication(request)
+        );
+
+        assertEquals("Resume not found with id: 3", ex.getMessage());
+    }
+
+    @Test
+    void createApplication_resumeWithoutUser_throws() {
+        ApplicationCreateRequest request = buildRequest(1L, 2L, 3L, "text");
+        Vacancy vacancy = buildVacancy(2L, VacancyStatus.ACTIVE);
+        Resume resume = new Resume();
+        resume.setId(3L);
+        resume.setUser(null);
+        when(vacancyRepository.findById(2L)).thenReturn(Optional.of(vacancy));
+        when(resumeRepository.findByIdWithUser(3L)).thenReturn(Optional.of(resume));
+
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> applicationService.createApplication(request)
+        );
+
+        assertEquals("Cannot use this resume because the associated user has been deleted", ex.getMessage());
+    }
+
+    @Test
+    void findById_notFound_throws() {
+        when(applicationRepository.findById(77L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> applicationService.findById(77L)
+        );
+
+        assertEquals("Application not found with id: 77", ex.getMessage());
+    }
+
+    @Test
+    void findByUser_success() {
+        Application application = new Application();
+        application.setId(1L);
+        application.setStatus(ApplicationStatus.PENDING);
+        application.setVacancy(buildVacancy(2L, VacancyStatus.ACTIVE));
+        application.setResume(buildResumeWithUser(3L, 10L));
+        when(userRepository.existsById(10L)).thenReturn(true);
+        when(applicationRepository.findByUserIdWithJoins(10L)).thenReturn(List.of(application));
+
+        List<ApplicationResponse> responses = applicationService.findByUser(10L);
+
+        assertEquals(1, responses.size());
+        assertEquals(1L, responses.get(0).getId());
+    }
+
+    @Test
+    void findByVacancy_success() {
+        Application application = new Application();
+        application.setId(1L);
+        application.setStatus(ApplicationStatus.PENDING);
+        application.setVacancy(buildVacancy(20L, VacancyStatus.ACTIVE));
+        application.setResume(buildResumeWithUser(3L, 10L));
+        when(vacancyRepository.existsById(20L)).thenReturn(true);
+        when(applicationRepository.findByVacancyIdWithJoins(20L)).thenReturn(List.of(application));
+
+        List<ApplicationResponse> responses = applicationService.findByVacancy(20L);
+
+        assertEquals(1, responses.size());
+        assertEquals(20L, responses.get(0).getVacancyId());
+    }
+
+    @Test
+    void searchByFiltersJpql_invalidStatus_throws() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> applicationService.searchByFiltersJpql(1L, "bad", "v", "r")
+        );
+
+        assertEquals("Invalid status: bad", ex.getMessage());
+    }
+
+    @Test
+    void updateStatus_success() {
+        Application application = new Application();
+        application.setId(7L);
+        application.setStatus(ApplicationStatus.PENDING);
+        application.setVacancy(buildVacancy(20L, VacancyStatus.ACTIVE));
+        application.setResume(buildResumeWithUser(30L, 10L));
+        when(applicationRepository.findById(7L)).thenReturn(Optional.of(application));
+
+        ApplicationResponse response = applicationService.updateStatus(7L, "accepted");
+
+        assertEquals("ACCEPTED", response.getStatus());
+        assertEquals(ApplicationStatus.ACCEPTED, application.getStatus());
+    }
+
+    @Test
+    void updateStatus_notFound_throws() {
+        when(applicationRepository.findById(7L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(
+                EntityNotFoundException.class,
+                () -> applicationService.updateStatus(7L, "ACCEPTED")
+        );
+
+        assertEquals("Application not found with id: 7", ex.getMessage());
+    }
+
+    @Test
+    void cancelApplication_whenResumeOrUserMissing_throws() {
+        Application application = new Application();
+        application.setResume(null);
+        when(applicationRepository.findById(1L)).thenReturn(Optional.of(application));
+
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> applicationService.cancelApplication(1L, 10L)
+        );
+
+        assertEquals("Cannot cancel application because the associated user no longer exists", ex.getMessage());
+    }
+
     private static ApplicationCreateRequest buildRequest(Long userId, Long vacancyId, Long resumeId, String coverLetter) {
         ApplicationCreateRequest request = new ApplicationCreateRequest();
         request.setUserId(userId);

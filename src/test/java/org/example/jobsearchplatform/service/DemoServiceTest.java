@@ -114,4 +114,25 @@ class DemoServiceTest {
         verify(companyRepository, never()).save(any());
         verify(employerRepository, never()).save(any());
     }
+
+    @Test
+    void saveWithTransaction_validRequest_savesCompanyAndEmployer() {
+        DemoRequest request = new DemoRequest();
+        request.setCompanyName("CompanyTxOk");
+        request.setEmployerEmail("tx.user@example.com");
+        request.setEmployerFirstName("Tx");
+        request.setEmployerLastName("User");
+
+        when(companyRepository.existsByName(anyString())).thenReturn(false);
+        when(companyRepository.save(any(Company.class))).thenAnswer(invocation -> {
+            Company saved = invocation.getArgument(0);
+            saved.setId(4L);
+            return saved;
+        });
+
+        demoService.saveWithTransaction(request);
+
+        verify(companyRepository).save(any(Company.class));
+        verify(employerRepository).save(any());
+    }
 }
