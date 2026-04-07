@@ -128,6 +128,19 @@ class CompanyServiceTest {
     }
 
     @Test
+    void findById_success() {
+        Company company = new Company();
+        company.setId(99L);
+        company.setName("Acme");
+        when(companyRepository.findById(99L)).thenReturn(Optional.of(company));
+
+        CompanyResponse response = companyService.findById(99L);
+
+        assertEquals(99L, response.getId());
+        assertEquals("Acme", response.getName());
+    }
+
+    @Test
     void findAll_mapsList() {
         Company first = new Company();
         first.setId(1L);

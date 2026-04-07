@@ -140,6 +140,28 @@ class EmployerServiceTest {
     }
 
     @Test
+    void findById_success() {
+        Company company = new Company();
+        company.setId(10L);
+        company.setName("Tech");
+
+        Employer employer = new Employer();
+        employer.setId(1L);
+        employer.setStatus(EmployerStatus.ACTIVE);
+        employer.setFirstName("A");
+        employer.setLastName("B");
+        employer.setEmail("a@b.com");
+        employer.setCompany(company);
+        employer.setCreatedVacancies(new java.util.ArrayList<>());
+        when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));
+
+        EmployerResponse response = employerService.findById(1L);
+
+        assertEquals(1L, response.getId());
+        assertEquals("ACTIVE", response.getStatus());
+    }
+
+    @Test
     void findAll_mapsList() {
         Employer employer = new Employer();
         employer.setId(3L);

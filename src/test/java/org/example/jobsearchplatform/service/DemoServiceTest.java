@@ -7,9 +7,11 @@ import org.example.jobsearchplatform.repository.EmployerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -134,5 +136,50 @@ class DemoServiceTest {
 
         verify(companyRepository).save(any(Company.class));
         verify(employerRepository).save(any());
+    }
+
+    @Test
+    void saveWithoutTransaction_validRequest_savesCompanyAndEmployer() {
+        DemoRequest request = new DemoRequest();
+        request.setCompanyName("CompanyNoTxOk");
+        request.setEmployerEmail("notx.user@example.com");
+        request.setEmployerFirstName("NoTx");
+        request.setEmployerLastName("User");
+
+        when(companyRepository.existsByName(anyString())).thenReturn(false);
+        when(companyRepository.save(any(Company.class))).thenAnswer(invocation -> {
+            Company saved = invocation.getArgument(0);
+            saved.setId(5L);
+            return saved;
+        });
+
+        demoService.saveWithoutTransaction(request);
+
+        verify(companyRepository).save(any(Company.class));
+        verify(companyRepository).flush();
+        verify(employerRepository).save(any());
+        verify(employerRepository).flush();
+    }
+
+    @Test
+    void saveWithTransaction_nullEmail_throwsAndCoversNullEmailBranch() {
+        DemoRequest request = new DemoRequest();
+        request.setCompanyName("CompanyNullEmail");
+        request.setEmployerEmail(null);
+        request.setEmployerFirstName("Null");
+        request.setEmployerLastName("Email");
+
+        when(companyRepository.existsByName(anyString())).thenReturn(false);
+        when(companyRepository.save(any(Company.class))).thenAnswer(invocation -> {
+            Company saved = invocation.getArgument(0);
+            saved.setId(6L);
+            return saved;
+        });
+
+        assertThrows(IllegalArgumentException.class, () -> demoService.saveWithTransaction(request));
+
+        ArgumentCaptor<Company> captor = ArgumentCaptor.forClass(Company.class);
+        verify(companyRepository).save(captor.capture());
+        assertTrue(captor.getValue().getContactEmail().contains("companynullemail_"));
     }
 }
