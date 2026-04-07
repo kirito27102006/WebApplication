@@ -129,6 +129,30 @@ class VacancyServiceTest {
     }
 
     @Test
+    void findById_success() {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setId(123L);
+        vacancy.setTitle("Java Dev");
+        vacancy.setStatus(VacancyStatus.ACTIVE);
+        Employer employer = new Employer();
+        employer.setId(3L);
+        employer.setFirstName("Anna");
+        employer.setLastName("Smith");
+        Company company = new Company();
+        company.setId(9L);
+        company.setName("Tech Corp");
+        employer.setCompany(company);
+        vacancy.setCreatedBy(employer);
+
+        when(vacancyRepository.findByIdWithJoins(123L)).thenReturn(Optional.of(vacancy));
+
+        VacancyResponse response = vacancyService.findById(123L);
+
+        assertEquals(123L, response.getId());
+        assertEquals("Java Dev", response.getTitle());
+    }
+
+    @Test
     void findAll_mapsList() {
         Vacancy vacancy = new Vacancy();
         vacancy.setId(1L);

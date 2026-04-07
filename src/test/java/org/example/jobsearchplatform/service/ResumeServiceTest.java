@@ -141,6 +141,25 @@ class ResumeServiceTest {
     }
 
     @Test
+    void findById_success() {
+        Resume resume = new Resume();
+        resume.setId(8L);
+        resume.setTitle("Java CV");
+        resume.setStatus(ResumeStatus.ACTIVE);
+        User user = new User();
+        user.setId(1L);
+        user.setFirstName("Ivan");
+        user.setLastName("Petrov");
+        resume.setUser(user);
+        when(resumeRepository.findByIdWithUser(8L)).thenReturn(Optional.of(resume));
+
+        ResumeResponse response = resumeService.findById(8L);
+
+        assertEquals(8L, response.getId());
+        assertEquals("Java CV", response.getTitle());
+    }
+
+    @Test
     void searchResumes_prefersSkillFilter() {
         Resume resume = new Resume();
         resume.setId(3L);

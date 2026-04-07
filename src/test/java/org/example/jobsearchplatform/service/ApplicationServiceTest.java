@@ -539,6 +539,23 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void cancelApplication_whenUserMissingButResumeExists_throws() {
+        Application application = new Application();
+        Resume resume = new Resume();
+        resume.setId(10L);
+        resume.setUser(null);
+        application.setResume(resume);
+        when(applicationRepository.findById(1L)).thenReturn(Optional.of(application));
+
+        IllegalStateException ex = assertThrows(
+                IllegalStateException.class,
+                () -> applicationService.cancelApplication(1L, 10L)
+        );
+
+        assertEquals("Cannot cancel application because the associated user no longer exists", ex.getMessage());
+    }
+
+    @Test
     void cancelApplication_notFound_throws() {
         when(applicationRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -577,6 +594,17 @@ class ApplicationServiceTest {
                 .thenReturn(List.of());
 
         List<ApplicationResponse> responses = applicationService.searchByFiltersJpql(1L, null, null, null);
+
+        assertEquals(0, responses.size());
+        verify(applicationRepository).searchByFiltersJpql(1L, null, "", "");
+    }
+
+    @Test
+    void searchByFiltersJpql_withBlankFilters_passesEmptyStringsForTextFilters() {
+        when(applicationRepository.searchByFiltersJpql(1L, null, "", ""))
+                .thenReturn(List.of());
+
+        List<ApplicationResponse> responses = applicationService.searchByFiltersJpql(1L, null, "   ", "  ");
 
         assertEquals(0, responses.size());
         verify(applicationRepository).searchByFiltersJpql(1L, null, "", "");
