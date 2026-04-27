@@ -4,13 +4,22 @@ import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.example.jobsearchplatform.dto.AsyncTaskStartResponse;
+import org.example.jobsearchplatform.dto.AsyncTaskStatusResponse;
+import org.example.jobsearchplatform.dto.CounterConcurrencyDemoResponse;
+import org.example.jobsearchplatform.dto.CounterResponse;
 import org.example.jobsearchplatform.dto.DemoRequest;
 import org.example.jobsearchplatform.dto.DemoResponse;
+import org.example.jobsearchplatform.dto.RaceConditionDemoResponse;
+import org.example.jobsearchplatform.service.AsyncDemoTaskService;
 import org.example.jobsearchplatform.service.DemoService;
+import org.example.jobsearchplatform.service.RaceConditionDemoService;
+import org.example.jobsearchplatform.service.ThreadSafeCounterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +37,9 @@ import java.util.Map;
 public class DemoController {
 
     private final DemoService demoService;
+    private final AsyncDemoTaskService asyncDemoTaskService;
+    private final ThreadSafeCounterService threadSafeCounterService;
+    private final RaceConditionDemoService raceConditionDemoService;
     private static final String COMPANY = "company";
     private static final String EMPLOYER = "employer";
 
@@ -134,5 +146,81 @@ public class DemoController {
                 .details(details)
                 .timestamp(LocalDateTime.now())
                 .build());
+    }
+
+    @PostMapping("/async")
+    @Operation(summary = "Start async demo business operation")
+    public ResponseEntity<AsyncTaskStartResponse> startAsyncOperation(@Valid @RequestBody DemoRequest request) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(asyncDemoTaskService.startTask(request));
+    }
+
+    @PostMapping("/async/no-delay")
+    @Operation(summary = "Start async demo business operation without artificial delay")
+    public ResponseEntity<AsyncTaskStartResponse> startAsyncOperationWithoutDelay(
+            @Valid @RequestBody DemoRequest request) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(asyncDemoTaskService.startTaskWithoutDelay(request));
+    }
+
+    @GetMapping("/async/{taskId}")
+    @Operation(summary = "Get async task execution status")
+    public ResponseEntity<AsyncTaskStatusResponse> getAsyncOperationStatus(@PathVariable String taskId) {
+        return ResponseEntity.ok(asyncDemoTaskService.getTaskStatus(taskId));
+    }
+
+    @PostMapping("/counter/increment")
+    @Operation(summary = "Increment thread-safe counter")
+    public ResponseEntity<CounterResponse> incrementCounter() {
+        long value = threadSafeCounterService.incrementAndGet();
+        return ResponseEntity.ok(CounterResponse.builder()
+                .value(value)
+                .message("Counter incremented successfully")
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @GetMapping("/counter")
+    @Operation(summary = "Get current thread-safe counter value")
+    public ResponseEntity<CounterResponse> getCounterValue() {
+        long value = threadSafeCounterService.getValue();
+        return ResponseEntity.ok(CounterResponse.builder()
+                .value(value)
+                .message("Current counter value")
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @PostMapping("/counter/reset")
+    @Operation(summary = "Reset thread-safe counter")
+    public ResponseEntity<CounterResponse> resetCounter() {
+        long value = threadSafeCounterService.reset();
+        return ResponseEntity.ok(CounterResponse.builder()
+                .value(value)
+                .message("Counter reset successfully")
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @GetMapping("/counter/race-condition")
+    @Operation(summary = "Demonstrate race condition and AtomicLong solution")
+    public ResponseEntity<RaceConditionDemoResponse> demonstrateRaceCondition() {
+        return ResponseEntity.ok(raceConditionDemoService.runDefaultDemo());
+    }
+
+    @GetMapping("/counter/race-condition/unsafe")
+    @Operation(summary = "Demonstrate unsafe counter under concurrent access")
+    public ResponseEntity<CounterConcurrencyDemoResponse> demonstrateUnsafeCounter() {
+        return ResponseEntity.ok(raceConditionDemoService.runUnsafeDemo());
+    }
+
+    @GetMapping("/counter/race-condition/atomic")
+    @Operation(summary = "Demonstrate AtomicLong counter under concurrent access")
+    public ResponseEntity<CounterConcurrencyDemoResponse> demonstrateAtomicCounter() {
+        return ResponseEntity.ok(raceConditionDemoService.runAtomicDemo());
+    }
+
+    @GetMapping("/counter/race-condition/synchronized")
+    @Operation(summary = "Demonstrate synchronized counter under concurrent access")
+    public ResponseEntity<CounterConcurrencyDemoResponse> demonstrateSynchronizedCounter() {
+        return ResponseEntity.ok(raceConditionDemoService.runSynchronizedDemo());
     }
 }

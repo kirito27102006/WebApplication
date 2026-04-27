@@ -39,3 +39,7 @@ logging:
     org.hibernate.orm.jdbc.bind: WARN
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
     org.hibernate.stat: WARN
+
+app:
+  async:
+    demo-delay-ms: 16000

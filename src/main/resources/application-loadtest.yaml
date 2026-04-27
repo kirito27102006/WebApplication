@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:job_search_platform_loadtest;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.H2Dialect
+
+logging:
+  file:
+    path: logs
+  level:
+    root: WARN
+    org.example.jobsearchplatform: INFO
+    org.springframework: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+
+app:
+  async:
+    demo-delay-ms: 16000

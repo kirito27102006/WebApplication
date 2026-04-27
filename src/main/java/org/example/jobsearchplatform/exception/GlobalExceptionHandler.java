@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -179,6 +180,18 @@ public class GlobalExceptionHandler {
         return buildError(
                 HttpStatus.NOT_FOUND,
                 "Resource not found",
+                request,
+                null
+        );
+    }
+
+    @ExceptionHandler(TaskRejectedException.class)
+    public ResponseEntity<ApiErrorResponse> handleTaskRejectedException(
+            TaskRejectedException ex,
+            HttpServletRequest request) {
+        return buildError(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                ex.getMessage(),
                 request,
                 null
         );
