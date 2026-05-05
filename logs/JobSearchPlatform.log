@@ -1,238 +1,36 @@
-2026-05-04 10:31:24.394 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
-2026-05-04 10:31:24.464 [main] INFO  o.e.j.JobSearchPlatformApplication - Starting JobSearchPlatformApplication using Java 25.0.2 with PID 13760 (C:\Users\Asus\Desktop\ПНАЯВУ\JobSearchPlatform\target\classes started by Asus in C:\Users\Asus\Desktop\ПНАЯВУ\JobSearchPlatform)
-2026-05-04 10:31:24.464 [main] DEBUG o.e.j.JobSearchPlatformApplication - Running with Spring Boot v3.1.5, Spring v6.0.13
-2026-05-04 10:31:24.465 [main] INFO  o.e.j.JobSearchPlatformApplication - No active profile set, falling back to 1 default profile: "default"
-2026-05-04 10:31:25.339 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-05-04 10:31:25.419 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 71 ms. Found 8 JPA repository interfaces.
-2026-05-04 10:31:26.088 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8081 (http)
-2026-05-04 10:31:26.096 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8081"]
-2026-05-04 10:31:26.098 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-05-04 10:31:26.098 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.15]
-2026-05-04 10:31:26.187 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-05-04 10:31:26.188 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1658 ms
-2026-05-04 10:31:26.232 [main] DEBUG o.e.j.config.RequestLoggingFilter - Filter 'requestLoggingFilter' configured for use
-2026-05-04 10:31:26.356 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-05-04 10:31:26.447 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.2.13.Final
-2026-05-04 10:31:26.450 [main] INFO  org.hibernate.cfg.Environment - HHH000406: Using bytecode reflection optimizer
-2026-05-04 10:31:26.735 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-05-04 10:31:26.756 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-05-04 10:31:26.978 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@173a5fad
-2026-05-04 10:31:26.981 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-05-04 10:31:27.058 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-05-04 10:31:28.120 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-05-04 10:31:28.315 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-05-04 10:31:28.679 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-05-04 10:31:29.636 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-05-04 10:31:29.809 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
-2026-05-04 10:31:30.205 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8081"]
-2026-05-04 10:31:30.229 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8081 (http) with context path ''
-2026-05-04 10:31:30.238 [main] INFO  o.e.j.JobSearchPlatformApplication - Started JobSearchPlatformApplication in 6.486 seconds (process running for 7.264)
-2026-05-04 10:31:41.483 [http-nio-8081-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-05-04 10:31:41.484 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2026-05-04 10:31:41.489 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 4 ms
-2026-05-04 10:31:41.562 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /favicon.ico -> 404 (64 ms)
-2026-05-04 10:31:41.612 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET / -> 304 (50 ms)
-2026-05-04 10:31:41.636 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /app.css?v=20260430-4 -> 304 (6 ms)
-2026-05-04 10:31:42.296 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /app.jsx?v=20260430-4 -> 304 (5 ms)
-2026-05-04 10:31:42.891 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /favicon.ico -> 404 (4 ms)
-2026-05-04 10:31:43.041 [http-nio-8081-exec-10] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 10:31:43.043 [http-nio-8081-exec-2] DEBUG o.e.j.service.ApplicationSearchIndex - CACHE MISS for key: ApplicationSearchCacheKey{page=0, size=30, sort='id: DESC'}
-2026-05-04 10:31:43.302 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 261 ms
-2026-05-04 10:31:43.302 [http-nio-8081-exec-10] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 261 ms
-2026-05-04 10:31:43.330 [http-nio-8081-exec-2] DEBUG o.e.j.service.ApplicationSearchIndex - CACHE PUT for key: ApplicationSearchCacheKey{page=0, size=30, sort='id: DESC'}
-2026-05-04 10:31:43.331 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findAll(..) completed in 294 ms
-2026-05-04 10:31:43.343 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 306 ms
-2026-05-04 10:31:43.349 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 313 ms
-2026-05-04 10:31:43.367 [http-nio-8081-exec-10] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (394 ms)
-2026-05-04 10:31:43.368 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 332 ms
-2026-05-04 10:31:43.374 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (419 ms)
-2026-05-04 10:31:43.387 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (427 ms)
-2026-05-04 10:31:43.389 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (413 ms)
-2026-05-04 10:31:43.391 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (425 ms)
-2026-05-04 10:31:43.398 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications?page=0&size=30&sort=id,desc -> 200 (434 ms)
-2026-05-04 10:31:57.344 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 15 ms
-2026-05-04 10:31:57.350 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (26 ms)
-2026-05-04 10:31:59.981 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 13 ms
-2026-05-04 10:31:59.986 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (21 ms)
-2026-05-04 10:32:02.877 [http-nio-8081-exec-6] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findByCompany(..) completed in 38 ms
-2026-05-04 10:32:02.882 [http-nio-8081-exec-6] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies?companyId=1 -> 200 (47 ms)
-2026-05-04 10:32:02.897 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findByCompany(..) completed in 59 ms
-2026-05-04 10:32:02.903 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers/company/1 -> 200 (71 ms)
-2026-05-04 10:32:34.461 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.login(..) completed in 426 ms
-2026-05-04 10:32:34.475 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/login -> 200 (579 ms)
-2026-05-04 10:32:34.512 [http-nio-8081-exec-4] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 13 ms
-2026-05-04 10:32:34.513 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 11 ms
-2026-05-04 10:32:34.517 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (21 ms)
-2026-05-04 10:32:34.521 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (23 ms)
-2026-05-04 10:32:34.522 [http-nio-8081-exec-4] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 10:32:34.522 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 21 ms
-2026-05-04 10:32:34.523 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 13 ms
-2026-05-04 10:32:34.528 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (29 ms)
-2026-05-04 10:32:34.528 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (21 ms)
-2026-05-04 10:32:34.536 [http-nio-8081-exec-4] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 14 ms
-2026-05-04 10:32:34.542 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (23 ms)
-2026-05-04 10:32:34.561 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findByUser(..) completed in 42 ms
-2026-05-04 10:32:34.568 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications/user/21 -> 200 (55 ms)
-2026-05-04 10:32:49.964 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findByUser(..) completed in 13 ms
-2026-05-04 10:32:49.967 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes/user/21 -> 200 (20 ms)
-2026-05-04 10:32:58.143 [http-nio-8081-exec-4] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.logout(..) completed in 1 ms
-2026-05-04 10:32:58.144 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/logout -> 204 (24 ms)
-2026-05-04 10:33:11.095 [http-nio-8081-exec-10] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.login(..) completed in 372 ms
-2026-05-04 10:33:11.099 [http-nio-8081-exec-10] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/login -> 200 (378 ms)
-2026-05-04 10:33:11.118 [http-nio-8081-exec-7] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 10:33:11.123 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 11 ms
-2026-05-04 10:33:11.125 [http-nio-8081-exec-6] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 10 ms
-2026-05-04 10:33:11.126 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 8 ms
-2026-05-04 10:33:11.128 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (20 ms)
-2026-05-04 10:33:11.131 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (19 ms)
-2026-05-04 10:33:11.132 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findByCompany(..) completed in 14 ms
-2026-05-04 10:33:11.135 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 17 ms
-2026-05-04 10:33:11.135 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies?companyId=12 -> 200 (20 ms)
-2026-05-04 10:33:11.136 [http-nio-8081-exec-6] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (26 ms)
-2026-05-04 10:33:11.144 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (28 ms)
-2026-05-04 10:33:11.144 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 26 ms
-2026-05-04 10:33:11.165 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (50 ms)
-2026-05-04 10:33:33.117 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.logout(..) completed in 0 ms
-2026-05-04 10:33:33.119 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/logout -> 204 (5 ms)
-2026-05-04 10:33:39.785 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-05-04 10:33:39.787 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-05-04 10:33:39.791 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
-2026-05-04 05:33:17.538 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
-2026-05-04 05:33:17.575 [main] INFO  o.e.j.JobSearchPlatformApplication - Starting JobSearchPlatformApplication using Java 25.0.2 with PID 788 (C:\Users\Asus\Desktop\ПНАЯВУ\JobSearchPlatform\target\classes started by Asus in C:\Users\Asus\Desktop\ПНАЯВУ\JobSearchPlatform)
-2026-05-04 05:33:17.576 [main] DEBUG o.e.j.JobSearchPlatformApplication - Running with Spring Boot v3.1.5, Spring v6.0.13
-2026-05-04 05:33:17.576 [main] INFO  o.e.j.JobSearchPlatformApplication - No active profile set, falling back to 1 default profile: "default"
-2026-05-04 05:33:18.266 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-05-04 05:33:18.330 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 57 ms. Found 8 JPA repository interfaces.
-2026-05-04 05:33:18.886 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8081 (http)
-2026-05-04 05:33:18.894 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8081"]
-2026-05-04 05:33:18.896 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-05-04 05:33:18.896 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.15]
-2026-05-04 05:33:18.995 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-05-04 05:33:18.995 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1381 ms
-2026-05-04 05:33:19.050 [main] DEBUG o.e.j.config.RequestLoggingFilter - Filter 'requestLoggingFilter' configured for use
-2026-05-04 05:33:19.272 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-05-04 05:33:19.335 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.2.13.Final
-2026-05-04 05:33:19.338 [main] INFO  org.hibernate.cfg.Environment - HHH000406: Using bytecode reflection optimizer
-2026-05-04 05:33:19.625 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-05-04 05:33:19.650 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-05-04 05:33:19.915 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@60194904
-2026-05-04 05:33:19.918 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-05-04 05:33:19.992 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-05-04 05:33:20.909 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-05-04 05:33:21.113 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-05-04 05:33:21.489 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-05-04 05:33:22.335 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-05-04 05:33:22.481 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
-2026-05-04 05:33:22.800 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8081"]
-2026-05-04 05:33:22.817 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8081 (http) with context path ''
-2026-05-04 05:33:22.822 [main] INFO  o.e.j.JobSearchPlatformApplication - Started JobSearchPlatformApplication in 5.913 seconds (process running for 6.604)
-2026-05-04 05:34:16.439 [http-nio-8081-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-05-04 05:34:16.440 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2026-05-04 05:34:16.441 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2026-05-04 05:34:16.469 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /favicon.ico -> 404 (24 ms)
-2026-05-04 05:34:17.594 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /favicon.ico -> 404 (5 ms)
-2026-05-04 05:34:17.697 [http-nio-8081-exec-8] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 05:34:17.698 [http-nio-8081-exec-7] DEBUG o.e.j.service.ApplicationSearchIndex - CACHE MISS for key: ApplicationSearchCacheKey{page=0, size=30, sort='id: DESC'}
-2026-05-04 05:34:17.838 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 139 ms
-2026-05-04 05:34:17.838 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 141 ms
-2026-05-04 05:34:17.864 [http-nio-8081-exec-4] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 168 ms
-2026-05-04 05:34:17.868 [http-nio-8081-exec-6] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 172 ms
-2026-05-04 05:34:17.872 [http-nio-8081-exec-7] DEBUG o.e.j.service.ApplicationSearchIndex - CACHE PUT for key: ApplicationSearchCacheKey{page=0, size=30, sort='id: DESC'}
-2026-05-04 05:34:17.873 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findAll(..) completed in 177 ms
-2026-05-04 05:34:17.878 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (224 ms)
-2026-05-04 05:34:17.881 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (232 ms)
-2026-05-04 05:34:17.888 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 192 ms
-2026-05-04 05:34:17.900 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (247 ms)
-2026-05-04 05:34:17.905 [http-nio-8081-exec-6] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (250 ms)
-2026-05-04 05:34:17.906 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (253 ms)
-2026-05-04 05:34:17.906 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications?page=0&size=30&sort=id,desc -> 200 (251 ms)
-2026-05-04 05:51:00.521 [http-nio-8081-exec-6] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.login(..) completed in 138 ms
-2026-05-04 05:51:00.525 [http-nio-8081-exec-6] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/login -> 200 (204 ms)
-2026-05-04 05:51:00.537 [http-nio-8081-exec-2] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 05:51:00.543 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 6 ms
-2026-05-04 05:51:00.548 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 11 ms
-2026-05-04 05:51:00.548 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (13 ms)
-2026-05-04 05:51:00.550 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 14 ms
-2026-05-04 05:51:00.550 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (14 ms)
-2026-05-04 05:51:00.553 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (19 ms)
-2026-05-04 05:51:00.554 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 17 ms
-2026-05-04 05:51:00.555 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 16 ms
-2026-05-04 05:51:00.559 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (22 ms)
-2026-05-04 05:51:00.559 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (23 ms)
-2026-05-04 05:51:00.576 [http-nio-8081-exec-10] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findByUser(..) completed in 25 ms
-2026-05-04 05:51:00.581 [http-nio-8081-exec-10] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications/user/21 -> 200 (43 ms)
-2026-05-04 13:07:27.371 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.logout(..) completed in 0 ms
-2026-05-04 13:07:27.374 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/logout -> 204 (33 ms)
-2026-05-04 13:07:28.866 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET / -> 304 (50 ms)
-2026-05-04 13:07:30.522 [http-nio-8081-exec-6] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 13:07:30.537 [http-nio-8081-exec-8] DEBUG o.e.j.service.ApplicationSearchIndex - CACHE HIT for key: ApplicationSearchCacheKey{page=0, size=30, sort='id: DESC'}
-2026-05-04 13:07:30.538 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findAll(..) completed in 1 ms
-2026-05-04 13:07:30.541 [http-nio-8081-exec-6] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 19 ms
-2026-05-04 13:07:30.541 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications?page=0&size=30&sort=id,desc -> 200 (8 ms)
-2026-05-04 13:07:30.545 [http-nio-8081-exec-10] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 23 ms
-2026-05-04 13:07:30.547 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 27 ms
-2026-05-04 13:07:30.547 [http-nio-8081-exec-6] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (28 ms)
-2026-05-04 13:07:30.555 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (39 ms)
-2026-05-04 13:07:30.557 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 35 ms
-2026-05-04 13:07:30.573 [http-nio-8081-exec-10] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (55 ms)
-2026-05-04 13:07:30.579 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (60 ms)
-2026-05-04 13:07:30.581 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 44 ms
-2026-05-04 13:07:30.595 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (61 ms)
-2026-05-04 13:37:02.288 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m34s162ms809µs600ns).
-2026-05-04 14:13:10.145 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m37s798ms725µs400ns).
-2026-05-04 14:16:06.139 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET / -> 304 (9 ms)
-2026-05-04 14:16:07.941 [http-nio-8081-exec-1] DEBUG o.e.j.service.ApplicationSearchIndex - CACHE HIT for key: ApplicationSearchCacheKey{page=0, size=30, sort='id: DESC'}
-2026-05-04 14:16:07.942 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findAll(..) completed in 1 ms
-2026-05-04 14:16:07.943 [http-nio-8081-exec-7] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 14:16:07.949 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications?page=0&size=30&sort=id,desc -> 200 (12 ms)
-2026-05-04 14:16:07.966 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 23 ms
-2026-05-04 14:16:07.971 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (34 ms)
-2026-05-04 14:16:07.974 [http-nio-8081-exec-10] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 29 ms
-2026-05-04 14:16:07.981 [http-nio-8081-exec-10] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (51 ms)
-2026-05-04 14:16:07.988 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 48 ms
-2026-05-04 14:16:07.990 [http-nio-8081-exec-4] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 49 ms
-2026-05-04 14:16:07.996 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 56 ms
-2026-05-04 14:16:07.997 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (63 ms)
-2026-05-04 14:16:08.005 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (70 ms)
-2026-05-04 14:16:08.011 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (74 ms)
-2026-05-04 14:18:04.738 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.login(..) completed in 162 ms
-2026-05-04 14:18:04.741 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/login -> 200 (175 ms)
-2026-05-04 14:18:04.763 [http-nio-8081-exec-5] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 14:18:04.765 [http-nio-8081-exec-4] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 8 ms
-2026-05-04 14:18:04.770 [http-nio-8081-exec-4] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (14 ms)
-2026-05-04 14:18:04.778 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 16 ms
-2026-05-04 14:18:04.777 [http-nio-8081-exec-2] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 20 ms
-2026-05-04 14:18:04.779 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 18 ms
-2026-05-04 14:18:04.780 [http-nio-8081-exec-2] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (25 ms)
-2026-05-04 14:18:04.780 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ApplicationService.findByUser(..) completed in 16 ms
-2026-05-04 14:18:04.780 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (21 ms)
-2026-05-04 14:18:04.783 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 21 ms
-2026-05-04 14:18:04.784 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/applications/user/21 -> 200 (24 ms)
-2026-05-04 14:18:04.785 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (26 ms)
-2026-05-04 14:18:04.789 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (30 ms)
-2026-05-04 14:18:20.055 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findByCompany(..) completed in 10 ms
-2026-05-04 14:18:20.057 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findByCompany(..) completed in 12 ms
-2026-05-04 14:18:20.059 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers/company/2 -> 200 (16 ms)
-2026-05-04 14:18:20.060 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies?companyId=2 -> 200 (17 ms)
-2026-05-04 14:18:28.181 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findByUser(..) completed in 9 ms
-2026-05-04 14:18:28.183 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes/user/21 -> 200 (15 ms)
-2026-05-04 14:18:35.426 [http-nio-8081-exec-10] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.logout(..) completed in 0 ms
-2026-05-04 14:18:35.427 [http-nio-8081-exec-10] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/logout -> 204 (3 ms)
-2026-05-04 14:18:46.673 [http-nio-8081-exec-6] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE AuthService.login(..) completed in 149 ms
-2026-05-04 14:18:46.677 [http-nio-8081-exec-6] INFO  o.e.j.config.RequestLoggingFilter - HTTP POST /api/auth/login -> 200 (156 ms)
-2026-05-04 14:18:46.704 [http-nio-8081-exec-9] INFO  o.e.j.service.ResumeService - Fetching all resumes with user data
-2026-05-04 14:18:46.710 [http-nio-8081-exec-9] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE ResumeService.findAll() completed in 6 ms
-2026-05-04 14:18:46.712 [http-nio-8081-exec-5] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE CompanyService.findAll() completed in 9 ms
-2026-05-04 14:18:46.713 [http-nio-8081-exec-7] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findByCompany(..) completed in 9 ms
-2026-05-04 14:18:46.713 [http-nio-8081-exec-3] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE VacancyService.findAll() completed in 12 ms
-2026-05-04 14:18:46.714 [http-nio-8081-exec-9] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/resumes -> 200 (12 ms)
-2026-05-04 14:18:46.716 [http-nio-8081-exec-7] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies?companyId=12 -> 200 (14 ms)
-2026-05-04 14:18:46.718 [http-nio-8081-exec-5] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/companies -> 200 (17 ms)
-2026-05-04 14:18:46.718 [http-nio-8081-exec-3] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/vacancies -> 200 (21 ms)
-2026-05-04 14:18:46.721 [http-nio-8081-exec-1] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE UserService.findAll() completed in 17 ms
-2026-05-04 14:18:46.729 [http-nio-8081-exec-1] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/users -> 200 (27 ms)
-2026-05-04 14:18:46.730 [http-nio-8081-exec-8] INFO  o.e.j.c.ServiceExecutionTimeAspect - SERVICE EmployerService.findAll() completed in 26 ms
-2026-05-04 14:18:46.734 [http-nio-8081-exec-8] INFO  o.e.j.config.RequestLoggingFilter - HTTP GET /api/employers -> 200 (32 ms)
-2026-05-04 14:21:07.402 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-05-04 14:21:07.405 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-05-04 14:21:07.411 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-05-05 22:05:25.001 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2026-05-05 22:05:25.056 [main] INFO  o.e.j.JobSearchPlatformApplication - Starting JobSearchPlatformApplication using Java 25.0.2 with PID 19692 (C:\Users\Asus\Desktop\ПНАЯВУ\JobSearchPlatform\target\classes started by Asus in C:\Users\Asus\Desktop\ПНАЯВУ\JobSearchPlatform)
+2026-05-05 22:05:25.056 [main] DEBUG o.e.j.JobSearchPlatformApplication - Running with Spring Boot v3.1.5, Spring v6.0.13
+2026-05-05 22:05:25.057 [main] INFO  o.e.j.JobSearchPlatformApplication - No active profile set, falling back to 1 default profile: "default"
+2026-05-05 22:05:26.286 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-05 22:05:26.410 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 108 ms. Found 8 JPA repository interfaces.
+2026-05-05 22:05:27.277 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8081 (http)
+2026-05-05 22:05:27.295 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8081"]
+2026-05-05 22:05:27.298 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-05 22:05:27.299 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.15]
+2026-05-05 22:05:27.398 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-05-05 22:05:27.398 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2282 ms
+2026-05-05 22:05:27.613 [main] DEBUG o.e.j.config.RequestLoggingFilter - Filter 'requestLoggingFilter' configured for use
+2026-05-05 22:05:27.726 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-05 22:05:27.789 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.2.13.Final
+2026-05-05 22:05:27.792 [main] INFO  org.hibernate.cfg.Environment - HHH000406: Using bytecode reflection optimizer
+2026-05-05 22:05:28.121 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-05 22:05:28.147 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-05-05 22:05:28.531 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@764db16c
+2026-05-05 22:05:28.532 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-05-05 22:05:28.620 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-05 22:05:31.574 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-05 22:05:32.070 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-05 22:05:33.285 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-05 22:05:35.023 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-05 22:05:35.260 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2026-05-05 22:05:35.981 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-05-05 22:05:36.247 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8081"]
+2026-05-05 22:05:36.350 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8081 (http) with context path ''
+2026-05-05 22:05:36.373 [main] INFO  o.e.j.JobSearchPlatformApplication - Started JobSearchPlatformApplication in 12.114 seconds (process running for 13.354)
+2026-05-05 22:05:37.703 [RMI TCP Connection(10)-10.0.6.72] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-05 22:05:37.703 [RMI TCP Connection(10)-10.0.6.72] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-05 22:05:37.706 [RMI TCP Connection(10)-10.0.6.72] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2026-05-05 22:11:48.155 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-05 22:11:48.218 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-05-05 22:11:48.252 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
