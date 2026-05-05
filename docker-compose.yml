@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: job-search-platform-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-job_search_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-job_search_platform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: job-search-platform-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: ${SERVER_PORT:-8081}
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-job_search_platform}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${SERVER_PORT:-8081}:8081"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

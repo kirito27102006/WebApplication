@@ -10,9 +10,9 @@ spring:
       add-mappings: false
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/job_search_platform
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:job_search_platform}}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -27,6 +27,9 @@ spring:
         jdbc.batch_size: 20
         order_inserts: true
         order_updates: true
+
+server:
+  port: ${SERVER_PORT:8081}
 
 logging:
   file:
@@ -43,3 +46,13 @@ logging:
 app:
   async:
     demo-delay-ms: 16000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true

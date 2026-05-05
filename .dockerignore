@@ -1,0 +1,9 @@
+target
+.git
+.idea
+logs
+JMeter
+.m2repo
+.sonar
+README.md
+desktop.ini

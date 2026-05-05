@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.EmployerCreateRequest;
 import org.example.jobsearchplatform.dto.EmployerResponse;
+import org.example.jobsearchplatform.service.AuthService;
 import org.example.jobsearchplatform.service.EmployerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,20 +76,24 @@ public class EmployerController {
     @Operation(summary = "Update employer")
     public EmployerResponse updateEmployer(
             @PathVariable @Positive Long id,
-            @Valid @RequestBody EmployerCreateRequest request) {
-        return employerService.updateEmployer(id, request);
+            @Valid @RequestBody EmployerCreateRequest request,
+            HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        return employerService.updateOwnedEmployer(id, principal.getCompanyId(), request);
     }
 
     @PatchMapping("/{id}/block")
     @Operation(summary = "Block employer")
-    public void blockEmployer(@PathVariable @Positive Long id) {
-        employerService.blockEmployer(id);
+    public void blockEmployer(@PathVariable @Positive Long id, HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        employerService.blockOwnedEmployer(id, principal.getCompanyId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete employer")
-    public void deleteEmployer(@PathVariable @Positive Long id) {
-        employerService.deleteEmployer(id);
+    public void deleteEmployer(@PathVariable @Positive Long id, HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        employerService.deleteOwnedEmployer(id, principal.getCompanyId());
     }
 }

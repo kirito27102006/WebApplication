@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: job-search-platform
+    runtime: docker
+    plan: free
+    autoDeployTrigger: off
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SERVER_PORT
+        value: 8081
+      - key: DB_HOST
+        fromDatabase:
+          name: job-search-platform-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: job-search-platform-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: job-search-platform-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: job-search-platform-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: job-search-platform-db
+          property: password
+
+databases:
+  - name: job-search-platform-db
+    plan: free
+    databaseName: job_search_platform
+    postgresMajorVersion: "16"

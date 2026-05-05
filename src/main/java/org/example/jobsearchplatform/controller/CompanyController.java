@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.jobsearchplatform.dto.CompanyCreateRequest;
 import org.example.jobsearchplatform.dto.CompanyResponse;
+import org.example.jobsearchplatform.service.AuthService;
 import org.example.jobsearchplatform.service.CompanyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,14 +79,17 @@ public class CompanyController {
     @Operation(summary = "Update company")
     public CompanyResponse updateCompany(
             @PathVariable @Positive Long id,
-            @Valid @RequestBody CompanyCreateRequest request) {
-        return companyService.updateCompany(id, request);
+            @Valid @RequestBody CompanyCreateRequest request,
+            HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        return companyService.updateOwnedCompany(id, principal.getCompanyId(), request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete company")
-    public void deleteCompany(@PathVariable @Positive Long id) {
-        companyService.deleteCompany(id);
+    public void deleteCompany(@PathVariable @Positive Long id, HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        companyService.deleteOwnedCompany(id, principal.getCompanyId());
     }
 }

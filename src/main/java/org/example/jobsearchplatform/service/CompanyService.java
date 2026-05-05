@@ -74,12 +74,28 @@ public class CompanyService {
         return companyMapper.toResponse(updatedCompany);
     }
 
+    public CompanyResponse updateOwnedCompany(Long id, Long companyId, CompanyCreateRequest request) {
+        ensureOwnedCompany(id, companyId);
+        return updateCompany(id, request);
+    }
+
     public void deleteCompany(Long id) {
         companyRepository.deleteById(id);
+    }
+
+    public void deleteOwnedCompany(Long id, Long companyId) {
+        ensureOwnedCompany(id, companyId);
+        deleteCompany(id);
     }
 
     private Company getCompanyById(Long id) {
         return companyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
+    }
+
+    private void ensureOwnedCompany(Long targetCompanyId, Long actorCompanyId) {
+        if (actorCompanyId == null || !targetCompanyId.equals(actorCompanyId)) {
+            throw new SecurityException("You can manage only your own company");
+        }
     }
 }

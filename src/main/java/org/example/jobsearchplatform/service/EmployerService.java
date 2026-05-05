@@ -74,8 +74,18 @@ public class EmployerService {
         return employerMapper.toResponse(updatedEmployer);
     }
 
+    public EmployerResponse updateOwnedEmployer(Long id, Long companyId, EmployerCreateRequest request) {
+        ensureOwnedEmployer(id, companyId);
+        return updateEmployer(id, request);
+    }
+
     public void blockEmployer(Long id) {
         getEmployerById(id).setStatus(EmployerStatus.BLOCKED);
+    }
+
+    public void blockOwnedEmployer(Long id, Long companyId) {
+        ensureOwnedEmployer(id, companyId);
+        blockEmployer(id);
     }
 
     public void deleteEmployer(Long id) {
@@ -88,6 +98,11 @@ public class EmployerService {
         employerRepository.delete(employer);
     }
 
+    public void deleteOwnedEmployer(Long id, Long companyId) {
+        ensureOwnedEmployer(id, companyId);
+        deleteEmployer(id);
+    }
+
     private Employer getEmployerById(Long id) {
         return employerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(EMPLOYER_NOT_FOUND_ID + id));
@@ -96,5 +111,13 @@ public class EmployerService {
     private Company getCompanyById(Long id) {
         return companyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + id));
+    }
+
+    private void ensureOwnedEmployer(Long employerId, Long actorCompanyId) {
+        Employer employer = getEmployerById(employerId);
+        Long employerCompanyId = employer.getCompany() != null ? employer.getCompany().getId() : null;
+        if (actorCompanyId == null || !actorCompanyId.equals(employerCompanyId)) {
+            throw new SecurityException("You can manage only employers of your own company");
+        }
     }
 }

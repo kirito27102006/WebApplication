@@ -3,6 +3,7 @@ package org.example.jobsearchplatform.exception;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.jobsearchplatform.exception.UnauthorizedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,18 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         return buildError(
                 HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                request,
+                null
+        );
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorizedException(
+            UnauthorizedException ex,
+            HttpServletRequest request) {
+        return buildError(
+                HttpStatus.UNAUTHORIZED,
                 ex.getMessage(),
                 request,
                 null

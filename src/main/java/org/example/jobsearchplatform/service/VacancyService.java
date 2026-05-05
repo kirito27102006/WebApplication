@@ -86,8 +86,18 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancy);
     }
 
+    public VacancyResponse updateOwnedVacancy(Long id, Long companyId, VacancyCreateRequest request) {
+        ensureOwnedVacancy(id, companyId);
+        return updateVacancy(id, request);
+    }
+
     public void closeVacancy(Long id) {
         getVacancyById(id).setStatus(VacancyStatus.CLOSED);
+    }
+
+    public void closeOwnedVacancy(Long id, Long companyId) {
+        ensureOwnedVacancy(id, companyId);
+        closeVacancy(id);
     }
 
     public void deleteVacancy(Long id) {
@@ -98,6 +108,11 @@ public class VacancyService {
         }
 
         vacancyRepository.delete(vacancy);
+    }
+
+    public void deleteOwnedVacancy(Long id, Long companyId) {
+        ensureOwnedVacancy(id, companyId);
+        deleteVacancy(id);
     }
 
     @Transactional(readOnly = true)
@@ -161,5 +176,16 @@ public class VacancyService {
     private Employer getEmployerById(Long id) {
         return employerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Employer not found with id: " + id));
+    }
+
+    private void ensureOwnedVacancy(Long vacancyId, Long actorCompanyId) {
+        Vacancy vacancy = getVacancyById(vacancyId);
+        Long targetCompanyId = vacancy.getCreatedBy() != null && vacancy.getCreatedBy().getCompany() != null
+                ? vacancy.getCreatedBy().getCompany().getId()
+                : null;
+
+        if (actorCompanyId == null || targetCompanyId == null || !actorCompanyId.equals(targetCompanyId)) {
+            throw new SecurityException("You can manage only vacancies of your own company");
+        }
     }
 }

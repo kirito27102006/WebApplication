@@ -1,5 +1,6 @@
 package org.example.jobsearchplatform.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.jobsearchplatform.dto.VacancyCreateRequest;
 import org.example.jobsearchplatform.dto.VacancyResponse;
+import org.example.jobsearchplatform.service.AuthService;
 import org.example.jobsearchplatform.service.VacancyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,20 +80,24 @@ public class VacancyController {
     @Operation(summary = "Update vacancy")
     public VacancyResponse updateVacancy(
             @PathVariable @Positive Long id,
-            @Valid @RequestBody VacancyCreateRequest request) {
-        return vacancyService.updateVacancy(id, request);
+            @Valid @RequestBody VacancyCreateRequest request,
+            HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        return vacancyService.updateOwnedVacancy(id, principal.getCompanyId(), request);
     }
 
     @PatchMapping("/{id}/close")
     @Operation(summary = "Close vacancy")
-    public void closeVacancy(@PathVariable @Positive Long id) {
-        vacancyService.closeVacancy(id);
+    public void closeVacancy(@PathVariable @Positive Long id, HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        vacancyService.closeOwnedVacancy(id, principal.getCompanyId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete vacancy")
-    public void deleteVacancy(@PathVariable @Positive Long id) {
-        vacancyService.deleteVacancy(id);
+    public void deleteVacancy(@PathVariable @Positive Long id, HttpServletRequest servletRequest) {
+        AuthService.SessionPrincipal principal = (AuthService.SessionPrincipal) servletRequest.getAttribute("authPrincipal");
+        vacancyService.deleteOwnedVacancy(id, principal.getCompanyId());
     }
 }
