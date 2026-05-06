@@ -42,6 +42,8 @@ logging:
 app:
   async:
     demo-delay-ms: 16000
+  demo:
+    seed-enabled: ${APP_DEMO_SEED_ENABLED:false}
 
 management:
   endpoints:

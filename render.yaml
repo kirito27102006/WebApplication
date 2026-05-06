@@ -9,6 +9,8 @@ services:
     envVars:
       - key: SERVER_PORT
         value: 8081
+      - key: APP_DEMO_SEED_ENABLED
+        value: true
       - key: DB_HOST
         fromDatabase:
           name: job-search-platform-db
